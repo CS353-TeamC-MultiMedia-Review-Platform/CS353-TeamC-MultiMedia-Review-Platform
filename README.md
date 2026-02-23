@@ -27,7 +27,6 @@ This project includes both **front-end** and **back-end** development, and uses 
 ---
 
 ## Tech Stack (Planned)
-
 - **Front End:** HTML, CSS, JavaScript (React)
 - **Back End / Server:** Node.js (Express)
 - **Database:** Firebase
@@ -38,3 +37,6 @@ This project includes both **front-end** and **back-end** development, and uses 
 ---
 
 ## Project Structure
+/frontend - frontend application (TBD)
+/backend - backend API server (Express)
+/docs - documentation (TBD)
