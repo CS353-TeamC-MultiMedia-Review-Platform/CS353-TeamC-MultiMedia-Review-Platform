@@ -9,3 +9,13 @@ node_modules/
 
 # IntelliJ / IDE project files
 .idea/
+
+# Firebase Configurations
+const firebaseConfig = {
+  apiKey: "AIzaSyAeNFqQiLArsLHjBC2SI7UyX6uk1xs8zco",
+  authDomain: "multi-media-review-platform.firebaseapp.com",
+  projectId: "multi-media-review-platform",
+  storageBucket: "multi-media-review-platform.firebasestorage.app",
+  messagingSenderId: "920016225734",
+  appId: "1:920016225734:web:afc9a78aef8dbf368c9ec7"
+};
