@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Reviews - Multimedia Review</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="reviews.html">Reviews</a>
+    <a href="login.html">Login</a>
+    <a href="dashboard.html">Dashboard</a>
+  </nav>
+
+  <main>
+    <h2>Browse Reviews</h2>
+    <p>Explore reviews from our community across all categories.</p>
+
+    <!-- Filter buttons -->
+    <div style="display: flex; gap: 1rem; margin: 2rem 0; flex-wrap: wrap;">
+      <button onclick="filterReviews('all')" class="filter-btn active">All Reviews</button>
+      <button onclick="filterReviews('books')" class="filter-btn">📚 Books</button>
+      <button onclick="filterReviews('movies')" class="filter-btn">🎬 Movies</button>
+      <button onclick="filterReviews('music')" class="filter-btn">🎵 Music</button>
+    </div>
+
+    <!-- BOOKS SECTION -->
+    <section class="review-section" id="books-section">
+      <h3>📚 Books</h3>
+      <div class="review-container">
+        <div class="review-card">
+          <h4>The Great Gatsby</h4>
+          <p class="author">F. Scott Fitzgerald</p>
+          <p class="rating">⭐⭐⭐⭐⭐ (5/5) • 234 reviews</p>
+          <p>A masterpiece of American literature that explores themes of wealth, love, and the American Dream.</p>
+          <a href="#" class="view-link">Read More →</a>
+        </div>
+        <div class="review-card">
+          <h4>To Kill a Mockingbird</h4>
+          <p class="author">Harper Lee</p>
+          <p class="rating">⭐⭐⭐⭐ (4.8/5) • 189 reviews</p>
+          <p>A compelling story about justice, morality, and growing up in the American South.</p>
+          <a href="#" class="view-link">Read More →</a>
+        </div>
+        <div class="review-card">
+          <h4>1984</h4>
+          <p class="author">George Orwell</p>
+          <p class="rating">⭐⭐⭐⭐⭐ (4.9/5) • 312 reviews</p>
+          <p>A dystopian novel that remains eerily relevant. A chilling exploration of totalitarianism.</p>
+          <a href="#" class="view-link">Read More →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- MOVIES SECTION -->
+    <section class="review-section" id="movies-section">
+      <h3>🎬 Movies</h3>
+      <div class="review-container">
+        <div class="review-card">
+          <h4>Inception</h4>
+          <p class="author">Directed by Christopher Nolan</p>
+          <p class="rating">⭐⭐⭐⭐⭐ (5/5) • 567 reviews</p>
+          <p>A mind-bending sci-fi thriller with incredible cinematography and a haunting score.</p>
+          <a href="#" class="view-link">Read More →</a>
+        </div>
+        <div class="review-card">
+          <h4>The Shawshank Redemption</h4>
+          <p class="author">Directed by Frank Darabont</p>
+          <p class="rating">⭐⭐⭐⭐⭐ (5/5) • 892 reviews</p>
+          <p>Often called the greatest film ever made. A story of hope, friendship, and redemption.</p>
+          <a href="#" class="view-link">Read More →</a>
+        </div>
+        <div class="review-card">
+          <h4>Pulp Fiction</h4>
+          <p class="author">Directed by Quentin Tarantino</p>
+          <p class="rating">⭐⭐⭐⭐ (4.7/5) • 425 reviews</p>
+          <p>A groundbreaking film with brilliant dialogue and interweaving narratives.</p>
+          <a href="#" class="view-link">Read More →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- MUSIC SECTION -->
+    <section class="review-section" id="music-section">
+      <h3>🎵 Music</h3>
+      <div class="review-container">
+        <div class="review-card">
+          <h4>Abbey Road</h4>
+          <p class="artist">The Beatles</p>
+          <p class="rating">⭐⭐⭐⭐⭐ (5/5) • 345 reviews</p>
+          <p>Iconic album with some of the greatest songs ever recorded. Timeless classic.</p>
+          <a href="#" class="view-link">Read More →</a>
+        </div>
+        <div class="review-card">
+          <h4>Dark Side of the Moon</h4>
+          <p class="artist">Pink Floyd</p>
+          <p class="rating">⭐⭐⭐⭐⭐ (5/5) • 478 reviews</p>
+          <p>Experimental and innovative. One of the most influential albums in rock history.</p>
+          <a href="#" class="view-link">Read More →</a>
+        </div>
+        <div class="review-card">
+          <h4>Rumours</h4>
+          <p class="artist">Fleetwood Mac</p>
+          <p class="rating">⭐⭐⭐⭐ (4.9/5) • 256 reviews</p>
+          <p>A masterpiece of pop-rock. Created during chaotic band tensions, it's pure perfection.</p>
+          <a href="#" class="view-link">Read More →</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    function filterReviews(category) {
+      // Get all sections
+      const booksSection = document.getElementById('books-section');
+      const moviesSection = document.getElementById('movies-section');
+      const musicSection = document.getElementById('music-section');
+      
+      // Get all filter buttons
+      const buttons = document.querySelectorAll('.filter-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // Show/hide sections based on category
+      if (category === 'all') {
+        booksSection.style.display = 'block';
+        moviesSection.style.display = 'block';
+        musicSection.style.display = 'block';
+      } else if (category === 'books') {
+        booksSection.style.display = 'block';
+        moviesSection.style.display = 'none';
+        musicSection.style.display = 'none';
+      } else if (category === 'movies') {
+        booksSection.style.display = 'none';
+        moviesSection.style.display = 'block';
+        musicSection.style.display = 'none';
+      } else if (category === 'music') {
+        booksSection.style.display = 'none';
+        moviesSection.style.display = 'none';
+        musicSection.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>
