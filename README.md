@@ -1,42 +1,36 @@
-# Multimedia Review Platform
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A multimedia review platform for **movies, music, and books**.
+## Getting Started
 
-Users can browse/search media items, view details, and leave **star ratings** and **text reviews**.  
-The platform also includes **social features** such as user interaction and **chat**.
+First, run the development server:
 
-This project includes both **front-end** and **back-end** development, and uses a **database** to store user, review, and chat data.
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
----
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Features (Planned)
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-### Core
-- User registration and login
-- Browse and search for movies, music, and books
-- Media detail pages (description, image, ratings)
-- Users can submit reviews and star ratings
-- User data and review data stored in a database (Firebase)
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-### Social
-- User profiles (basic info)
-- Follow / friend (optional, depending on scope)
-- Chat / messaging between users
-- Comment on reviews / like reviews
+## Learn More
 
----
+To learn more about Next.js, take a look at the following resources:
 
-## Tech Stack (Planned)
-- **Front End:** HTML, CSS, JavaScript (React)
-- **Back End / Server:** Node.js (Express)
-- **Database:** Firebase
-- **External APIs:** public APIs for fetching movie/music/book info (titles, images, descriptions)
-- **Real-time / Chat (Option):**
-  - Firebase (Firestore real-time updates) or Firebase Realtime Database
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
----
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Project Structure
-/frontend - frontend application (TBD)
-/backend - backend API server (Express)
-/docs - documentation (TBD)
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
