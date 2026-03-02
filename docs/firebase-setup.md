@@ -5,6 +5,7 @@
 **Project Name:** multi-media-review-platform  
 **Region:** (e.g. europe-west1)  
 **Services Enabled:**
+
 - Authentication (Email/Password)
 - Cloud Firestore
 
@@ -31,6 +32,7 @@ Firestore has been created in test mode for development.
 All team members have been added to the Firebase project as **Editor**.
 
 If access is needed:
+
 1. Contact the project Owner.
 2. Provide your Google account email.
 3. Accept the invite from Firebase.
@@ -79,10 +81,34 @@ Add Firebase initialization and export:
 
 ---
 
-## Sprint Completion
+## Backend (Firebase Admin SDK) – Service Account Key
 
-✔ Firebase project created  
-✔ Authentication enabled  
-✔ Firestore created  
-✔ Team members added  
-✔ Documentation added  
+The backend uses **firebase-admin** and requires a local service account key JSON file.
+
+### 1) Generate a service account private key
+
+Firebase Console → Project Settings → Service accounts → **Generate new private key**  
+This will download a JSON file.
+
+### 2) Place the key file locally
+
+Move/rename the downloaded file to:
+
+`backend/serviceAccountKey.json`
+
+> The backend expects this exact path/name (server.js requires `./serviceAccountKey.json`).
+
+### 3) Do NOT commit the key
+
+This file is sensitive and must NOT be uploaded to GitHub.  
+It is ignored by `.gitignore`:
+
+- `backend/serviceAccountKey.json`
+
+### 4) Run the backend
+
+```bash
+cd backend
+npm install
+npm run dev
+```
