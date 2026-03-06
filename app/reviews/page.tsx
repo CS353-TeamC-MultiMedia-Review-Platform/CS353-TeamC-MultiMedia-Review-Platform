@@ -1,140 +1,49 @@
 'use client';
 
-import { useState } from 'react';
-import Navigation from '../components/Navigation';
-
 export default function ReviewsPage() {
-  const [activeCategory, setActiveCategory] = useState('all');
-
-  function filterReviews(category: string) {
-    setActiveCategory(category);
-  }
+  const reviews = [
+    { id: 1, title: "Dune: Part Two", rating: 4.5, author: "Denis Villeneuve", type: "Movie", review: "A visually stunning continuation with excellent world-building.", date: "2024-02-15" },
+    { id: 2, title: "Oppenheimer", rating: 4.8, author: "Christopher Nolan", type: "Movie", review: "A masterpiece exploring the human cost of innovation.", date: "2024-01-20" },
+    { id: 3, title: "The Great Gatsby", rating: 4.8, author: "F. Scott Fitzgerald", type: "Book", review: "A timeless classic about the American dream.", date: "2024-01-10" },
+  ];
 
   return (
-    <>
-      <Navigation />
-      <main>
-        <h2>Browse Reviews</h2>
-        <p>Explore reviews from our community across all categories.</p>
-
-        {/* Filter buttons */}
-        <div style={{ display: 'flex', gap: '1rem', margin: '2rem 0', flexWrap: 'wrap' }}>
-          <button 
-            onClick={() => filterReviews('all')} 
-            className={`filter-btn ${activeCategory === 'all' ? 'active' : ''}`}
-          >
-            All Reviews
-          </button>
-          <button 
-            onClick={() => filterReviews('books')} 
-            className={`filter-btn ${activeCategory === 'books' ? 'active' : ''}`}
-          >
-            📚 Books
-          </button>
-          <button 
-            onClick={() => filterReviews('movies')} 
-            className={`filter-btn ${activeCategory === 'movies' ? 'active' : ''}`}
-          >
-            🎬 Movies
-          </button>
-          <button 
-            onClick={() => filterReviews('music')} 
-            className={`filter-btn ${activeCategory === 'music' ? 'active' : ''}`}
-          >
-            🎵 Music
-          </button>
+    <main className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-3xl">⭐</span>
+          <h1 className="text-4xl font-bold text-white">All Reviews</h1>
         </div>
+        <p className="text-slate-400 text-sm">{reviews.length} reviews from community</p>
+      </div>
 
-        {/* BOOKS SECTION */}
-        {(activeCategory === 'all' || activeCategory === 'books') && (
-          <section className="review-section" id="books-section">
-            <h3>📚 Books</h3>
-            <div className="review-container">
-              <div className="review-card">
-                <h4>The Great Gatsby</h4>
-                <p className="author">F. Scott Fitzgerald</p>
-                <p className="rating">⭐⭐⭐⭐⭐ (5/5) • 234 reviews</p>
-                <p>A masterpiece of American literature that explores themes of wealth, love, and the American Dream.</p>
-                <a href="#" className="view-link">Read More →</a>
+      {/* Reviews List */}
+      <div className="space-y-4">
+        {reviews.map((review) => (
+          <div key={review.id} className="bg-slate-800/30 border border-white/5 rounded-xl p-6 hover:border-white/10 transition">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="text-lg font-semibold text-white">{review.title}</h3>
+                <p className="text-sm text-slate-400">{review.type} • {review.author}</p>
               </div>
-              <div className="review-card">
-                <h4>To Kill a Mockingbird</h4>
-                <p className="author">Harper Lee</p>
-                <p className="rating">⭐⭐⭐⭐ (4.8/5) • 189 reviews</p>
-                <p>A compelling story about justice, morality, and growing up in the American South.</p>
-                <a href="#" className="view-link">Read More →</a>
-              </div>
-              <div className="review-card">
-                <h4>1984</h4>
-                <p className="author">George Orwell</p>
-                <p className="rating">⭐⭐⭐⭐⭐ (4.9/5) • 312 reviews</p>
-                <p>A dystopian novel that remains eerily relevant. A chilling exploration of totalitarianism.</p>
-                <a href="#" className="view-link">Read More →</a>
-              </div>
+              <span className="px-3 py-1 bg-amber-500/20 text-amber-300 rounded-lg text-sm font-semibold">
+                ⭐ {review.rating}
+              </span>
             </div>
-          </section>
-        )}
+            <p className="text-slate-300 mb-3">{review.review}</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-slate-500">{new Date(review.date).toLocaleDateString()}</p>
+              <button className="text-amber-400 hover:text-amber-300 text-sm font-medium transition">
+                Read Full Review →
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
 
-        {/* MOVIES SECTION */}
-        {(activeCategory === 'all' || activeCategory === 'movies') && (
-          <section className="review-section" id="movies-section">
-            <h3>🎬 Movies</h3>
-            <div className="review-container">
-              <div className="review-card">
-                <h4>Inception</h4>
-                <p className="author">Directed by Christopher Nolan</p>
-                <p className="rating">⭐⭐⭐⭐⭐ (5/5) • 567 reviews</p>
-                <p>A mind-bending sci-fi thriller with incredible cinematography and a haunting score.</p>
-                <a href="#" className="view-link">Read More →</a>
-              </div>
-              <div className="review-card">
-                <h4>The Shawshank Redemption</h4>
-                <p className="author">Directed by Frank Darabont</p>
-                <p className="rating">⭐⭐⭐⭐⭐ (5/5) • 892 reviews</p>
-                <p>Often called the greatest film ever made. A story of hope, friendship, and redemption.</p>
-                <a href="#" className="view-link">Read More →</a>
-              </div>
-              <div className="review-card">
-                <h4>Pulp Fiction</h4>
-                <p className="author">Directed by Quentin Tarantino</p>
-                <p className="rating">⭐⭐⭐⭐ (4.7/5) • 425 reviews</p>
-                <p>A groundbreaking film with brilliant dialogue and interweaving narratives.</p>
-                <a href="#" className="view-link">Read More →</a>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* MUSIC SECTION */}
-        {(activeCategory === 'all' || activeCategory === 'music') && (
-          <section className="review-section" id="music-section">
-            <h3>🎵 Music</h3>
-            <div className="review-container">
-              <div className="review-card">
-                <h4>Abbey Road</h4>
-                <p className="artist">The Beatles</p>
-                <p className="rating">⭐⭐⭐⭐⭐ (5/5) • 345 reviews</p>
-                <p>Iconic album with some of the greatest songs ever recorded. Timeless classic.</p>
-                <a href="#" className="view-link">Read More →</a>
-              </div>
-              <div className="review-card">
-                <h4>Dark Side of the Moon</h4>
-                <p className="artist">Pink Floyd</p>
-                <p className="rating">⭐⭐⭐⭐⭐ (5/5) • 478 reviews</p>
-                <p>Experimental and innovative. One of the most influential albums in rock history.</p>
-                <a href="#" className="view-link">Read More →</a>
-              </div>
-              <div className="review-card">
-                <h4>Rumours</h4>
-                <p className="artist">Fleetwood Mac</p>
-                <p className="rating">⭐⭐⭐⭐ (4.9/5) • 256 reviews</p>
-                <p>A masterpiece of pop-rock. Created during chaotic band tensions, it's pure perfection.</p>
-                <a href="#" className="view-link">Read More →</a>
-              </div>
-            </div>
-          </section>
-        )}
-      </main>
-    </>
+      {reviews.length === 0 && (
+        <div className="text-center py-12 text-slate-400">No reviews yet</div>
+      )}
+    </main>
   );
 }

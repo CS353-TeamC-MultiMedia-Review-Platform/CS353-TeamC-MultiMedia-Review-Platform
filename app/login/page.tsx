@@ -1,11 +1,31 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import Navigation from '../components/Navigation';
 
 export default function LoginPage() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Add login logic here
+    
+    // Get form data
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email');
+    const password = formData.get('password');
+
+    // Simple validation
+    if (email && password) {
+      // Store auth token (in a real app, this would come from your backend)
+      const token = btoa(`${email}:${password}`); // Basic encoding for demo
+      localStorage.setItem('authToken', token);
+      
+      // Also set it as a cookie for server-side middleware
+      document.cookie = `authToken=${token}; path=/`;
+      
+      // Redirect to dashboard
+      router.push('/dashboard');
+    }
   };
 
   return (
