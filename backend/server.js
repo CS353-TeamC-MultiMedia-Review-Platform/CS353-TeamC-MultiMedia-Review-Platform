@@ -5,6 +5,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
+const https = require("https");
 
 // FIREBASE SETUP
 
@@ -127,17 +128,38 @@ app.post("/auth/login", async (req, res) => {
   }
 
   try {
-    const userRecord = await admin.auth().getUserByEmail(email);
-    const token = await admin.auth().createCustomToken(userRecord.uid);
+    // Use Firebase REST API to verify password
+    const firebaseRes = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          returnSecureToken: true,
+        }),
+      },
+    );
+
+    const firebaseData = await firebaseRes.json();
+
+    if (!firebaseRes.ok) {
+      // Firebase returns specific error codes
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    // Also create a custom token for consistency
+    const token = await admin.auth().createCustomToken(firebaseData.localId);
 
     res.json({
       token,
-      uid: userRecord.uid,
-      email,
-      name: userRecord.displayName,
+      uid: firebaseData.localId,
+      email: firebaseData.email,
+      name: firebaseData.displayName,
     });
   } catch (err) {
-    res.status(401).json({ error: "Invalid email or password" });
+    res.status(500).json({ error: err.message });
   }
 });
 
