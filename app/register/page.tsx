@@ -1,46 +1,154 @@
-'use client';
-
-import Navigation from '../components/Navigation';
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirm: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!form.name.trim()) newErrors.name = "Name is required";
+    if (!form.email.includes("@")) newErrors.email = "Invalid email format";
+    if (form.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+    if (form.password !== form.confirm)
+      newErrors.confirm = "Passwords do not match";
+    return newErrors;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add registration logic here
+
+    const errs = validate();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5001/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrors({ general: data.error });
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("uid", data.uid);
+      localStorage.setItem("userName", data.name);
+
+      router.push("/dashboard");
+    } catch {
+      setErrors({ general: "Network error, please try again" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <>
-      <Navigation />
-      <main>
-        <h2>Register</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="name">Full Name</label>
-            <input type="text" id="name" name="name" required />
-          </div>
+    <div className="max-w-md mx-auto mt-20 p-6 border rounded-xl shadow">
+      <h1 className="text-2xl font-bold mb-6">Create an Account</h1>
 
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input type="email" id="email" name="email" required />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input type="password" id="password" name="password" required />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="confirm-password">Confirm Password</label>
-            <input type="password" id="confirm-password" name="confirm-password" required />
-          </div>
-          
-          <button type="submit">Create Account</button>
-        </form>
-
-        <div className="link-text">
-          Already have an account? <a href="/login">Login here</a>
+      {errors.general && (
+        <div className="bg-red-100 text-red-600 p-3 rounded mb-4">
+          {errors.general}
         </div>
-      </main>
-    </>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <input
+            name="name"
+            placeholder="Full Name"
+            value={form.name}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          />
+          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+        </div>
+
+        <div>
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          />
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
+        </div>
+
+        <div>
+          <input
+            name="password"
+            type="password"
+            placeholder="Password (min. 6 characters)"
+            value={form.password}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password}</p>
+          )}
+        </div>
+
+        <div>
+          <input
+            name="confirm"
+            type="password"
+            placeholder="Confirm Password"
+            value={form.confirm}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          />
+          {errors.confirm && (
+            <p className="text-red-500 text-sm">{errors.confirm}</p>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? "Registering..." : "Register"}
+        </button>
+      </form>
+
+      <p className="mt-4 text-center text-sm">
+        Already have an account?{" "}
+        <a href="/login" className="text-blue-600 hover:underline">
+          Log in
+        </a>
+      </p>
+    </div>
   );
 }
