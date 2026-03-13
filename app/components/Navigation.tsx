@@ -61,11 +61,9 @@ export default function Navigation() {
             <Link href="/reviews" className={`pb-2 transition text-sm font-medium ${isActive('/reviews')}`}>
               Reviews
             </Link>
-            {isLoggedIn && (
-              <Link href="/dashboard" className={`pb-2 transition text-sm font-medium ${isActive('/dashboard')}`}>
-                Dashboard
-              </Link>
-            )}
+            <Link href="/dashboard" className={`pb-2 transition text-sm font-medium ${isActive('/dashboard')}`}>
+              Dashboard
+            </Link>
           </div>
 
           {/* Search & Auth */}

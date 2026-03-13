@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 interface Review {
   id: number;
@@ -106,10 +107,18 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Edit Button */}
-            <button className="px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition whitespace-nowrap">
-              Edit Profile
-            </button>
+            {/* Edit and Create Buttons */}
+            <div className="flex gap-3 flex-col sm:flex-row">
+              <Link
+                href="/dashboard/create-review"
+                className="px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition whitespace-nowrap text-center"
+              >
+                + Create Review
+              </Link>
+              <button className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition whitespace-nowrap">
+                Edit Profile
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -228,9 +237,9 @@ export default function DashboardPage() {
         {activeTab === 'my-reviews' && (
           <div className="text-center py-12">
             <p className="text-slate-400 text-lg">You haven't written any standalone reviews yet.</p>
-            <button className="mt-4 px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition">
+            <Link href="/dashboard/create-review" className="inline-block mt-4 px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition">
               Write Your First Review
-            </button>
+            </Link>
           </div>
         )}
 
@@ -238,9 +247,9 @@ export default function DashboardPage() {
         {activeTab === 'saved' && (
           <div className="text-center py-12">
             <p className="text-slate-400 text-lg">You haven't saved any items yet.</p>
-            <button className="mt-4 px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition">
+            <Link href="/" className="inline-block mt-4 px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition">
               Start Exploring
-            </button>
+            </Link>
           </div>
         )}
       </div>
