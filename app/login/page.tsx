@@ -48,7 +48,7 @@ export default function LoginPage() {
         </form>
 
         <div className="link-text">
-          Don't have an account? <a href="/register">Register here</a>
+          Don&apos;t have an account? <a href="/register">Register here</a>
         </div>
       </main>
     </>
