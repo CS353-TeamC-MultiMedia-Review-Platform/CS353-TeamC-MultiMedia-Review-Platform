@@ -1,29 +1,30 @@
-// IMPORTS 
+// IMPORTS
 
 require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
+const https = require("https");
 
-// FIREBASE SETUP 
+// FIREBASE SETUP
 
 const serviceAccount = require("./serviceAccountKey.json");
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
 });
 
 const db = admin.firestore();
 
-// EXPRESS SETUP 
+// EXPRESS SETUP
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// FIREBASE FUNCTIONS 
+// FIREBASE FUNCTIONS
 
 async function saveUserData(uid, data) {
   await db.collection("users").doc(uid).set(data);
@@ -37,7 +38,7 @@ async function getUserData(uid) {
   return doc.data();
 }
 
-// ROUTES 
+// ROUTES
 
 // Root route
 app.get("/", (req, res) => {
@@ -66,7 +67,7 @@ app.post("/save", async (req, res) => {
   }
 });
 
-//  Get user data
+// Get user data
 app.get("/data/:uid", async (req, res) => {
   try {
     const data = await getUserData(req.params.uid);
@@ -81,13 +82,94 @@ app.get("/data/:uid", async (req, res) => {
   }
 });
 
-//  TEST SAVE TO FIREBASE
+// AUTH ROUTES
+
+// Register
+app.post("/auth/register", async (req, res) => {
+  const { email, password, name } = req.body;
+
+  // Basic validation
+  if (!email || !password || !name) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+  if (password.length < 6) {
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 6 characters" });
+  }
+
+  try {
+    const userRecord = await admin.auth().createUser({
+      email,
+      password,
+      displayName: name,
+    });
+
+    await saveUserData(userRecord.uid, {
+      name,
+      email,
+      createdAt: new Date().toISOString(),
+    });
+
+    const token = await admin.auth().createCustomToken(userRecord.uid);
+
+    res.json({ token, uid: userRecord.uid, name, email });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Login
+app.post("/auth/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
+
+  try {
+    // Use Firebase REST API to verify password
+    const firebaseRes = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          returnSecureToken: true,
+        }),
+      },
+    );
+
+    const firebaseData = await firebaseRes.json();
+
+    if (!firebaseRes.ok) {
+      // Firebase returns specific error codes
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    // Also create a custom token for consistency
+    const token = await admin.auth().createCustomToken(firebaseData.localId);
+
+    res.json({
+      token,
+      uid: firebaseData.localId,
+      email: firebaseData.email,
+      name: firebaseData.displayName,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// TEST SAVE TO FIREBASE
 app.get("/test-save", async (req, res) => {
   try {
     const docRef = await db.collection("testCollection").add({
       name: "Eoghan",
       score: 42,
-      createdAt: new Date()
+      createdAt: new Date(),
     });
 
     res.send(`Saved test document with ID: ${docRef.id}`);
@@ -97,15 +179,14 @@ app.get("/test-save", async (req, res) => {
   }
 });
 
-
-// 🔥 TEST GET FROM FIREBASE
+// TEST GET FROM FIREBASE
 app.get("/test-get", async (req, res) => {
   try {
     const snapshot = await db.collection("testCollection").get();
 
-    const data = snapshot.docs.map(doc => ({
+    const data = snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
 
     res.json(data);
@@ -115,11 +196,10 @@ app.get("/test-get", async (req, res) => {
   }
 });
 
-// -------------------- START SERVER --------------------
+// START SERVER
 
 const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
-
