@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+
+# environment variables
+.env
+backend/.env
+
+# firebase secrets
+serviceAccountKey.json
+backend/serviceAccountKey.json
+
+# logs
+npm-debug.log*
+
+# OS files
+.DS_Store
