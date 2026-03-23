@@ -196,6 +196,55 @@ app.get("/test-get", async (req, res) => {
   }
 });
 
+// CREATE REVIEW
+app.post("/reviews/create", async (req, res) => {
+  try {
+    const { userId, rating, reviewText, mediaId } = req.body;
+
+    // Validation
+    if (!userId || !rating || !reviewText || !mediaId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const newReview = {
+      userId,
+      rating,
+      reviewText,
+      mediaId,
+      createdAt: new Date(),
+    };
+
+    const docRef = await db.collection("reviews").add(newReview);
+
+    res.status(201).json({
+      message: "Review created successfully",
+      reviewId: docRef.id,
+    });
+
+  } catch (error) {
+    console.error("Error creating review:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.get("/reviews/user/:id", async (req, res) => {
+  try {
+    const snapshot = await db
+      .collection("reviews")
+      .where("userId", "==", req.params.id)
+      .get();
+
+    const reviews = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    res.json(reviews);
+
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
 // START SERVER
 
 const PORT = process.env.PORT || 5001;
