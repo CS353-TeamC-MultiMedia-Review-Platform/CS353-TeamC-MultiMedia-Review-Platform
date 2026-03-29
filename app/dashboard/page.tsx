@@ -1,78 +1,123 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Review {
-  id: number;
+  id: string;
   title: string;
-  type: 'movie' | 'music' | 'book';
-  category: string;
+  mediaType: "movie" | "music" | "book";
   rating: number;
-  userRating: number;
-  myReview: string;
-  dateAdded: string;
-  image: string;
+  reviewText: string;
+  createdAt: string;
+  mediaTitle: string;
+  userName: string;
+}
+
+interface UserData {
+  name: string;
+  email: string;
+  createdAt?: string;
 }
 
 export default function DashboardPage() {
-  const [filterType, setFilterType] = useState('all');
-  const [activeTab, setActiveTab] = useState('my-library');
+  const router = useRouter();
+  const [filterType, setFilterType] = useState("all");
+  const [activeTab, setActiveTab] = useState("my-reviews");
+  const [userName, setUserName] = useState("");
+  const [userId, setUserId] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userCreatedAt, setUserCreatedAt] = useState("");
+  const [userReviews, setUserReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Sample user data
-  const userProfile = {
-    name: 'Alex Chen',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-    joinDate: 'January 2024',
-    totalReviews: 8,
-    followers: 234,
-    following: 156,
-  };
+  // Check authentication and load user data on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      setLoading(true);
+      try {
+        const uid = localStorage.getItem("uid");
+        const name = localStorage.getItem("userName");
 
-  const myLibrary: Review[] = [
-    {
-      id: 1,
-      title: "Dune: Part Two",
-      type: "movie",
-      category: "Sci-Fi",
-      rating: 4.5,
-      userRating: 5,
-      myReview: "An epic continuation with stunning visuals and compelling storytelling.",
-      dateAdded: "2 weeks ago",
-      image: "https://images.unsplash.com/photo-1594908900066-3f47337549d8?w=80&h=80&fit=crop"
-    },
-    {
-      id: 2,
-      title: "Atomic Habits",
-      type: "book",
-      category: "Self-Help",
-      rating: 4.9,
-      userRating: 5,
-      myReview: "Life-changing insights into building better habits through small, consistent actions.",
-      dateAdded: "1 month ago",
-      image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=80&h=80&fit=crop"
-    },
-    {
-      id: 3,
-      title: "Golden Hour",
-      type: "music",
-      category: "Pop",
-      rating: 4.6,
-      userRating: 4,
-      myReview: "Beautiful melodies but some tracks feel a bit repetitive towards the end.",
-      dateAdded: "3 weeks ago",
-      image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=80&h=80&fit=crop"
-    },
-  ];
+        if (!uid || !name) {
+          router.push("/login");
+          return;
+        }
+
+        setUserId(uid);
+        setUserName(name);
+
+        // Fetch user's full data from backend (including email)
+        try {
+          const userResponse = await fetch(`http://localhost:5001/data/${uid}`);
+          if (userResponse.ok) {
+            const userData: UserData = await userResponse.json();
+            setUserEmail(userData.email);
+            if (userData.createdAt) {
+              setUserCreatedAt(userData.createdAt);
+            }
+          }
+        } catch (userErr) {
+          console.error("Could not fetch user data:", userErr);
+        }
+
+        // Fetch user's reviews from backend
+        const response = await fetch(
+          `http://localhost:5001/reviews/user/${uid}`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setUserReviews(data.reviews || []);
+        } else {
+          setError("Failed to load reviews");
+        }
+      } catch (err) {
+        console.error("Error loading dashboard:", err);
+        setError("An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   const stats = {
-    total: myLibrary.length,
-    movies: myLibrary.filter(i => i.type === 'movie').length,
-    music: myLibrary.filter(i => i.type === 'music').length,
-    books: myLibrary.filter(i => i.type === 'book').length,
+    total: userReviews.length,
+    movies: userReviews.filter((r) => r.mediaType === "movie").length,
+    music: userReviews.filter((r) => r.mediaType === "music").length,
+    books: userReviews.filter((r) => r.mediaType === "book").length,
   };
 
-  const filtered = filterType === 'all' ? myLibrary : myLibrary.filter(i => i.type === (filterType === 'movie' ? 'movie' : filterType === 'music' ? 'music' : 'book'));
+  const filtered =
+    filterType === "all"
+      ? userReviews
+      : userReviews.filter(
+          (r) => r.mediaType === (filterType as "movie" | "music" | "book"),
+        );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-white">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">{error}</p>
+          <Link href="/" className="text-amber-400 hover:text-amber-300">
+            Back to home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-12">
@@ -81,33 +126,46 @@ export default function DashboardPage() {
         <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-12">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             {/* Avatar */}
-            <img
-              src={userProfile.avatar}
-              alt={userProfile.name}
-              className="w-20 h-20 rounded-full border-2 border-amber-500"
-            />
+            <div className="w-20 h-20 rounded-full border-2 border-amber-500 bg-amber-500/20 flex items-center justify-center">
+              <span className="text-4xl">👤</span>
+            </div>
 
             {/* Profile Info */}
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-white mb-2">{userProfile.name}</h1>
-              <p className="text-slate-400 mb-4">Member since {userProfile.joinDate}</p>
+              <h1 className="text-4xl font-bold text-white mb-2">{userName}</h1>
+              <p className="text-slate-400 mb-4">Your Personal Dashboard</p>
+
+              {/* User Information Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div className="bg-slate-800/40 border border-slate-700/50 rounded-lg p-4">
+                  <p className="text-xs text-slate-500 mb-1">📧 Email</p>
+                  <p className="text-slate-200 font-medium">
+                    {userEmail || "Loading..."}
+                  </p>
+                </div>
+                {userCreatedAt && (
+                  <div className="bg-slate-800/40 border border-slate-700/50 rounded-lg p-4">
+                    <p className="text-xs text-slate-500 mb-1">
+                      📅 Member Since
+                    </p>
+                    <p className="text-slate-200 font-medium">
+                      {new Date(userCreatedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-8 flex-wrap">
                 <div>
-                  <p className="text-2xl font-bold text-white">{userProfile.followers}</p>
-                  <p className="text-slate-400 text-sm">Followers</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-white">{userProfile.following}</p>
-                  <p className="text-slate-400 text-sm">Following</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-amber-400">{userProfile.totalReviews}</p>
-                  <p className="text-slate-400 text-sm">Reviews</p>
+                  <p className="text-2xl font-bold text-amber-400">
+                    {stats.total}
+                  </p>
+                  <p className="text-slate-400 text-sm">Total Reviews</p>
                 </div>
               </div>
             </div>
 
-            {/* Edit and Create Buttons */}
+            {/* Create Review Button */}
             <div className="flex gap-3 flex-col sm:flex-row">
               <Link
                 href="/dashboard/create-review"
@@ -115,9 +173,6 @@ export default function DashboardPage() {
               >
                 + Create Review
               </Link>
-              <button className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition whitespace-nowrap">
-                Edit Profile
-              </button>
             </div>
           </div>
         </div>
@@ -128,128 +183,111 @@ export default function DashboardPage() {
         {/* Tabs */}
         <div className="flex gap-4 mb-8 border-b border-white/10">
           <button
-            onClick={() => setActiveTab('my-library')}
+            onClick={() => setActiveTab("my-reviews")}
             className={`pb-4 px-1 font-semibold transition border-b-2 ${
-              activeTab === 'my-library'
-                ? 'text-amber-400 border-amber-400'
-                : 'text-slate-400 border-transparent hover:text-white'
-            }`}
-          >
-            📚 My Library
-          </button>
-          <button
-            onClick={() => setActiveTab('my-reviews')}
-            className={`pb-4 px-1 font-semibold transition border-b-2 ${
-              activeTab === 'my-reviews'
-                ? 'text-amber-400 border-amber-400'
-                : 'text-slate-400 border-transparent hover:text-white'
+              activeTab === "my-reviews"
+                ? "text-amber-400 border-amber-400"
+                : "text-slate-400 border-transparent hover:text-white"
             }`}
           >
             ✍️ My Reviews
           </button>
-          <button
-            onClick={() => setActiveTab('saved')}
-            className={`pb-4 px-1 font-semibold transition border-b-2 ${
-              activeTab === 'saved'
-                ? 'text-amber-400 border-amber-400'
-                : 'text-slate-400 border-transparent hover:text-white'
-            }`}
-          >
-            ❤️ Saved Items
-          </button>
         </div>
 
-        {/* Library View */}
-        {activeTab === 'my-library' && (
-          <div>
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-4 hover:bg-slate-800/70 transition">
-                <p className="text-3xl font-bold text-white">{stats.total}</p>
-                <p className="text-xs text-slate-400 mt-2">Total Items</p>
-              </div>
-              <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-4 hover:bg-slate-800/70 transition">
-                <p className="text-3xl font-bold text-blue-400">🎬</p>
-                <p className="text-xs text-slate-400 mt-2">{stats.movies} Movies</p>
-              </div>
-              <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-4 hover:bg-slate-800/70 transition">
-                <p className="text-3xl font-bold text-purple-400">🎵</p>
-                <p className="text-xs text-slate-400 mt-2">{stats.music} Music</p>
-              </div>
-              <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-4 hover:bg-slate-800/70 transition">
-                <p className="text-3xl font-bold text-emerald-400">📚</p>
-                <p className="text-xs text-slate-400 mt-2">{stats.books} Books</p>
-              </div>
-            </div>
-
-            {/* Filter Buttons */}
-            <div className="flex gap-2 flex-wrap mb-6">
-              {['all', 'movie', 'music', 'book'].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setFilterType(type)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                    filterType === type
-                      ? 'bg-amber-500 text-black'
-                      : 'bg-slate-800 text-slate-400 border border-white/5 hover:text-white'
-                  }`}
-                >
-                  {type === 'all' ? 'All Items' : type.charAt(0).toUpperCase() + type.slice(1) + 's'}
-                </button>
-              ))}
-            </div>
-
-            {/* Library Items */}
-            <div className="space-y-4">
-              {filtered.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-slate-800/30 border border-white/5 rounded-xl p-5 hover:bg-slate-800/50 transition flex gap-5"
-                >
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">{item.title}</h3>
-                        <p className="text-slate-400 text-sm">{item.category}</p>
-                      </div>
-                      <div className="flex gap-2 items-center flex-shrink-0">
-                        <span className="px-2 py-1 bg-slate-700/50 rounded text-xs text-slate-300">{item.dateAdded}</span>
-                        <span className="text-amber-400 font-semibold">⭐ {item.userRating}/5</span>
-                      </div>
-                    </div>
-                    <p className="text-slate-300 text-sm line-clamp-2">{item.myReview}</p>
-                  </div>
-                  <button className="px-4 py-2 text-amber-400 hover:bg-amber-500/20 rounded transition flex-shrink-0">
-                    ✎ Edit
-                  </button>
-                </div>
-              ))}
-            </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-4 hover:bg-slate-800/70 transition">
+            <p className="text-3xl font-bold text-white">{stats.total}</p>
+            <p className="text-xs text-slate-400 mt-2">Total Reviews</p>
           </div>
-        )}
+          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-4 hover:bg-slate-800/70 transition">
+            <p className="text-3xl font-bold text-blue-400">🎬</p>
+            <p className="text-xs text-slate-400 mt-2">{stats.movies} Movies</p>
+          </div>
+          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-4 hover:bg-slate-800/70 transition">
+            <p className="text-3xl font-bold text-purple-400">🎵</p>
+            <p className="text-xs text-slate-400 mt-2">{stats.music} Music</p>
+          </div>
+          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-4 hover:bg-slate-800/70 transition">
+            <p className="text-3xl font-bold text-emerald-400">📚</p>
+            <p className="text-xs text-slate-400 mt-2">{stats.books} Books</p>
+          </div>
+        </div>
 
-        {/* Reviews View */}
-        {activeTab === 'my-reviews' && (
+        {/* Filter Buttons */}
+        <div className="flex gap-2 flex-wrap mb-6">
+          {["all", "movie", "music", "book"].map((type) => (
+            <button
+              key={type}
+              onClick={() => setFilterType(type)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                filterType === type
+                  ? "bg-amber-500 text-black"
+                  : "bg-slate-800 text-slate-400 border border-white/5 hover:text-white"
+              }`}
+            >
+              {type === "all"
+                ? "All Reviews"
+                : type.charAt(0).toUpperCase() + type.slice(1) + "s"}
+            </button>
+          ))}
+        </div>
+
+        {/* Reviews List */}
+        {filtered.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-slate-400 text-lg">You haven't written any standalone reviews yet.</p>
-            <Link href="/dashboard/create-review" className="inline-block mt-4 px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition">
+            <p className="text-slate-400 text-lg mb-4">
+              You haven't written any reviews yet.
+            </p>
+            <Link
+              href="/dashboard/create-review"
+              className="inline-block px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition"
+            >
               Write Your First Review
             </Link>
           </div>
-        )}
-
-        {/* Saved Items View */}
-        {activeTab === 'saved' && (
-          <div className="text-center py-12">
-            <p className="text-slate-400 text-lg">You haven't saved any items yet.</p>
-            <Link href="/" className="inline-block mt-4 px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition">
-              Start Exploring
-            </Link>
+        ) : (
+          <div className="space-y-4">
+            {filtered.map((review) => (
+              <div
+                key={review.id}
+                className="bg-slate-800/30 border border-white/5 rounded-xl p-6 hover:border-white/10 transition"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">
+                      {review.mediaTitle}
+                    </h3>
+                    <p className="text-sm text-slate-400">
+                      {review.mediaType === "movie"
+                        ? "🎬 Movie"
+                        : review.mediaType === "music"
+                          ? "🎵 Music"
+                          : "📚 Book"}
+                    </p>
+                  </div>
+                  <span className="px-3 py-1 bg-amber-500/20 text-amber-300 rounded-lg text-sm font-semibold">
+                    ⭐ {review.rating}/5
+                  </span>
+                </div>
+                <p className="text-slate-300 mb-3">{review.reviewText}</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-slate-500">
+                    {review.createdAt
+                      ? new Date(review.createdAt).toLocaleDateString()
+                      : "Recently added"}
+                  </p>
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/dashboard/my-reviews/${review.id}`}
+                      className="text-amber-400 hover:text-amber-300 text-sm font-medium transition"
+                    >
+                      Edit →
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -1,35 +1,62 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { useState } from 'react';
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return !!localStorage.getItem('authToken');
-    }
-    return false;
-  });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Check login status on mount and update when storage changes
+  useEffect(() => {
+    setMounted(true);
+
+    const checkLoginStatus = () => {
+      const token = localStorage.getItem("authToken");
+      setIsLoggedIn(!!token);
+    };
+
+    checkLoginStatus();
+
+    // Listen for storage changes (for when user logs in)
+    const handleStorageChange = () => {
+      checkLoginStatus();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    // Also listen for changes in the same window
+    const interval = setInterval(checkLoginStatus, 500);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    document.cookie = 'authToken=; path=/';
+    localStorage.removeItem("token");
+    localStorage.removeItem("uid");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("authToken");
+    document.cookie = "authToken=; path=/";
     setIsLoggedIn(false);
-    router.push('/login');
+    router.push("/login");
   };
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
+    if (e.key === "Enter" && searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
 
   const isActive = (href: string) => {
-    return pathname === href ? 'text-amber-400 border-b-2 border-amber-400' : 'text-slate-300 hover:text-white';
+    return pathname === href
+      ? "text-amber-400 border-b-2 border-amber-400"
+      : "text-slate-300 hover:text-white";
   };
 
   return (
@@ -41,27 +68,47 @@ export default function Navigation() {
             <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
               <span className="text-black font-bold">★</span>
             </div>
-            <span className="text-white font-bold text-lg hidden sm:inline">Critiq</span>
+            <span className="text-white font-bold text-lg hidden sm:inline">
+              Critiq
+            </span>
           </Link>
 
           {/* Menu Items */}
           <div className="hidden lg:flex items-center gap-8 flex-1 mx-8">
-            <Link href="/" className={`pb-2 transition text-sm font-medium ${isActive('/')}`}>
+            <Link
+              href="/"
+              className={`pb-2 transition text-sm font-medium ${isActive("/")}`}
+            >
               Home
             </Link>
-            <Link href="/movies" className={`pb-2 transition text-sm font-medium ${isActive('/movies')}`}>
+            <Link
+              href="/movies"
+              className={`pb-2 transition text-sm font-medium ${isActive("/movies")}`}
+            >
               Movies
             </Link>
-            <Link href="/music" className={`pb-2 transition text-sm font-medium ${isActive('/music')}`}>
+            <Link
+              href="/music"
+              className={`pb-2 transition text-sm font-medium ${isActive("/music")}`}
+            >
               Music
             </Link>
-            <Link href="/books" className={`pb-2 transition text-sm font-medium ${isActive('/books')}`}>
+            <Link
+              href="/books"
+              className={`pb-2 transition text-sm font-medium ${isActive("/books")}`}
+            >
               Books
             </Link>
-            <Link href="/reviews" className={`pb-2 transition text-sm font-medium ${isActive('/reviews')}`}>
+            <Link
+              href="/reviews"
+              className={`pb-2 transition text-sm font-medium ${isActive("/reviews")}`}
+            >
               Reviews
             </Link>
-            <Link href="/dashboard" className={`pb-2 transition text-sm font-medium ${isActive('/dashboard')}`}>
+            <Link
+              href="/dashboard"
+              className={`pb-2 transition text-sm font-medium ${isActive("/dashboard")}`}
+            >
               Dashboard
             </Link>
           </div>
@@ -88,7 +135,10 @@ export default function Navigation() {
                 Logout
               </button>
             ) : (
-              <Link href="/login" className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black rounded-lg text-sm font-medium transition font-semibold">
+              <Link
+                href="/login"
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black rounded-lg text-sm font-medium transition font-semibold"
+              >
                 Login
               </Link>
             )}

@@ -50,10 +50,9 @@ export default function LoginPage() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("uid", data.uid);
       localStorage.setItem("userName", data.name);
+      localStorage.setItem("authToken", data.uid);
 
-      document.cookie = `authToken=${data.uid}; path=/`;
-
-      router.push("/");
+      router.push("/dashboard");
     } catch {
       setErrors({ general: "Network error, please try again" });
     } finally {
