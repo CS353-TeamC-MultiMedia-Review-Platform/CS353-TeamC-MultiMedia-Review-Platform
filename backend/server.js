@@ -6,6 +6,7 @@ const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
 const https = require("https");
+const authMiddleware = require("./middleware/auth");
 
 // FIREBASE SETUP
 
@@ -349,37 +350,22 @@ app.post("/auth/login", async (req, res) => {
   }
 
   try {
-    // Use Firebase REST API to verify password
-    const firebaseRes = await fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          returnSecureToken: true,
-        }),
-      },
-    );
-
-    const firebaseData = await firebaseRes.json();
-
-    if (!firebaseRes.ok) {
-      // Firebase returns specific error codes
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-
-    // Also create a custom token for consistency
-    const token = await admin.auth().createCustomToken(firebaseData.localId);
+    // Get user by email using Admin SDK
+    const userRecord = await admin.auth().getUserByEmail(email);
+    
+    // Create custom token for the user
+    const token = await admin.auth().createCustomToken(userRecord.uid);
 
     res.json({
       token,
-      uid: firebaseData.localId,
-      email: firebaseData.email,
-      name: firebaseData.displayName,
+      uid: userRecord.uid,
+      email: userRecord.email,
+      name: userRecord.displayName || "",
     });
   } catch (err) {
+    if (err.code === 'auth/user-not-found') {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -579,9 +565,10 @@ app.get("/test-get", async (req, res) => {
 });
 
 // CREATE REVIEW
-app.post("/reviews/create", async (req, res) => {
+app.post("/reviews/create", authMiddleware , async (req, res) => {
   try {
-    const { userId, rating, reviewText, mediaId } = req.body;
+    const { rating, reviewText, mediaId } = req.body;
+    const userId = req.user.uid;
 
     // Validation
     if (!userId || !rating || !reviewText || !mediaId) {
@@ -609,7 +596,7 @@ app.post("/reviews/create", async (req, res) => {
   }
 });
 
-app.get("/reviews/user/:id", async (req, res) => {
+app.get("/reviews/user/:id", authMiddleware, async (req, res) => {
   try {
     const snapshot = await db
       .collection("reviews")
