@@ -41,7 +41,9 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5001/auth/register", {
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
+      const res = await fetch(`${apiUrl}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -54,7 +56,7 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErrors({ general: data.error });
+        setErrors({ general: data.error || "Registration failed" });
         return;
       }
 
@@ -65,7 +67,8 @@ export default function RegisterPage() {
       document.cookie = `authToken=${data.uid}; path=/`;
 
       router.push("/");
-    } catch {
+    } catch (error) {
+      console.error("Registration error:", error);
       setErrors({ general: "Network error, please try again" });
     } finally {
       setLoading(false);
