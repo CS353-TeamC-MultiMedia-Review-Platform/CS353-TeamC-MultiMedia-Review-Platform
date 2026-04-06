@@ -1,85 +1,144 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getPopularBooks, searchBooks, BookItem } from '@/services/mediaService';
 
 export default function AllBooks() {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [books, setBooks] = useState<BookItem[]>([]);
+  const [filtered, setFiltered] = useState<BookItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<'rating' | 'title'>('rating');
 
-  const books = [
-    { id: 1, title: "The Great Gatsby", category: "Fiction", rating: 4.8, image: "https://images.unsplash.com/photo-1543002588-d83cedbc4baf?w=300&h=400&fit=crop", creator: "F. Scott Fitzgerald" },
-    { id: 2, title: "To Kill a Mockingbird", category: "Drama", rating: 4.9, image: "https://images.unsplash.com/photo-1507842217343-583f20270319?w=300&h=400&fit=crop", creator: "Harper Lee" },
-    { id: 3, title: "1984", category: "Dystopian", rating: 4.7, image: "https://images.unsplash.com/photo-1507842217343-583f20270319?w=300&h=400&fit=crop", creator: "George Orwell" },
-    { id: 4, title: "Pride and Prejudice", category: "Romance", rating: 4.8, image: "https://images.unsplash.com/photo-1502494793896-f5df769eecfa?w=300&h=400&fit=crop", creator: "Jane Austen" },
-  ];
+  useEffect(() => {
+    const fetchBooks = async () => {
+      setLoading(true);
+      try {
+        console.log('[Books Page] Fetching popular books...');
+        const data = await getPopularBooks();
+        console.log('[Books Page] Got books:', data.length, data);
+        setBooks(data || []);
+        setFiltered(data || []);
+      } catch (error) {
+        console.error('[Books Page] Error fetching books:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const categories = ['Fiction', 'Mystery', 'Romance', 'Science Fiction', 'Fantasy', 'Drama', 'Non-Fiction', 'Biography', 'Dystopian'];
+    fetchBooks();
+  }, []);
 
-  const filtered = activeCategory
-    ? books.filter((b) => b.category === activeCategory)
-    : books;
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    setLoading(true);
+    
+    if (query.trim()) {
+      const results = await searchBooks(query);
+      setBooks(results || []);
+      setFiltered(results || []);
+    } else {
+      const data = await getPopularBooks();
+      setBooks(data || []);
+      setFiltered(data || []);
+    }
+    setLoading(false);
+  };
+
+  const handleSort = (criteria: 'rating' | 'title') => {
+    setSortBy(criteria);
+    const sorted = [...filtered].sort((a, b) => {
+      if (criteria === 'rating') {
+        return b.rating - a.rating;
+      } else {
+        return a.title.localeCompare(b.title);
+      }
+    });
+    setFiltered(sorted);
+  };
 
   return (
     <main className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-3 mb-4">
           <span className="text-3xl">📚</span>
           <h1 className="text-4xl font-bold text-white">All Books</h1>
         </div>
-        <p className="text-slate-400 text-sm">{books.length} books in library</p>
-      </div>
-
-      {/* Category Filter */}
-      <div className="flex gap-2 mb-8 flex-wrap">
-        <button
-          onClick={() => setActiveCategory(null)}
-          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-            activeCategory === null
-              ? 'bg-amber-500 text-black'
-              : 'bg-slate-800 text-slate-400 border border-white/5 hover:text-white'
-          }`}
-        >
-          All
-        </button>
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeCategory === cat
-                ? 'bg-amber-500 text-black'
-                : 'bg-slate-800 text-slate-400 border border-white/5 hover:text-white'
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
+        
+        {/* Search Bar */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search books and authors..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg bg-slate-800 text-white placeholder-slate-500 border border-slate-700 focus:outline-none focus:border-amber-500"
+          />
+        </div>
+        
+        <div className="flex justify-between items-center">
+          <p className="text-slate-400 text-sm">{filtered.length} books found</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleSort('rating')}
+              className={`px-3 py-1 rounded text-sm font-medium transition ${
+                sortBy === 'rating'
+                  ? 'bg-amber-500 text-black'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+            >
+              Sort by ⭐ Rating
+            </button>
+            <button
+              onClick={() => handleSort('title')}
+              className={`px-3 py-1 rounded text-sm font-medium transition ${
+                sortBy === 'title'
+                  ? 'bg-amber-500 text-black'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+            >
+              Sort by Title
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Books Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {filtered.map((book) => (
-          <div key={book.id} className="group cursor-pointer">
-            <div className="relative overflow-hidden rounded-xl mb-4 bg-slate-800 aspect-[3/4]">
-              <img
-                src={book.image}
-                alt={book.title}
-                className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
-              />
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition flex items-center justify-center">
-                <div className="text-white opacity-0 group-hover:opacity-100 transition">
-                  <span className="text-4xl">▶</span>
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-4"></div>
+          <p className="text-slate-400">Loading books...</p>
+        </div>
+      ) : filtered.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {filtered.map((book) => (
+            <div key={book.id} className="group cursor-pointer h-full">
+              <div className="relative overflow-hidden rounded-xl mb-4 bg-slate-800 aspect-[3/4]">
+                <img
+                  src={book.image}
+                  alt={book.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/200x300?text=Book';
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <span className="text-4xl text-white">▶</span>
                 </div>
               </div>
+              <h3 className="font-semibold text-white group-hover:text-amber-400 transition line-clamp-2">
+                {book.title}
+              </h3>
+              <p className="text-slate-400 text-sm mb-2">{book.author}</p>
+              <p className="text-emerald-400 font-semibold">⭐ {book.rating.toFixed(1)}</p>
+              {book.year && <p className="text-slate-500 text-xs mt-1">{book.year}</p>}
             </div>
-            <h3 className="font-semibold text-white group-hover:text-amber-400 transition">{book.title}</h3>
-            <p className="text-slate-400 text-sm">{book.creator}</p>
-            <p className="text-emerald-400 font-semibold mt-2">⭐ {book.rating}</p>
-          </div>
-        ))}
-      </div>
-
-      {filtered.length === 0 && (
-        <div className="text-center py-12 text-slate-400">No books found in this category</div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <p className="text-slate-400">No books found. Try a different search.</p>
+        </div>
       )}
     </main>
   );

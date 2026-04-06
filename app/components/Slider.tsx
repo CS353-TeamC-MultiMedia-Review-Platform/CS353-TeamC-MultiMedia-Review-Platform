@@ -1,18 +1,11 @@
 'use client';
 
 import React, { useRef } from 'react';
-
-interface Item {
-  id: number;
-  title: string;
-  creator: string;
-  rating: number;
-  image: string;
-}
+import { MovieItem } from '@/services/mediaService';
 
 interface SliderProps {
   title: string;
-  items: Item[];
+  items: MovieItem[];
   icon: string;
 }
 
@@ -57,11 +50,14 @@ const Slider: React.FC<SliderProps> = ({ title, items, icon }) => {
               key={item.id}
               className="flex-shrink-0 w-48 cursor-pointer group/item"
             >
-              <div className="relative overflow-hidden rounded-xl mb-4 bg-slate-800 aspect-video h-32">
+              <div className="relative overflow-hidden rounded-xl mb-4 bg-slate-800 aspect-[3/4]">
                 <img
-                  src={item.image}
+                  src={item.posterPath}
                   alt={item.title}
                   className="w-full h-full object-cover group-hover/item:scale-110 transition duration-300"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/500x750?text=No+Poster';
+                  }}
                 />
                 <div className="absolute inset-0 bg-black/40 group-hover/item:bg-black/60 transition flex items-center justify-center opacity-0 group-hover/item:opacity-100">
                   <span className="text-3xl text-white">▶</span>
@@ -70,8 +66,8 @@ const Slider: React.FC<SliderProps> = ({ title, items, icon }) => {
               <h3 className="font-semibold text-white group-hover/item:text-amber-400 transition line-clamp-2 text-sm mb-1">
                 {item.title}
               </h3>
-              <p className="text-slate-400 text-xs mb-2">{item.creator}</p>
-              <p className="text-amber-400 font-semibold text-sm">⭐ {item.rating}</p>
+              <p className="text-slate-400 text-xs mb-2">{item.releaseDate}</p>
+              <p className="text-amber-400 font-semibold text-sm">⭐ {item.rating}/10</p>
             </div>
           ))}
         </div>
