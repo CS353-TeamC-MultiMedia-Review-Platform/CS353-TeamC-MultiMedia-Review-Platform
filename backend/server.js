@@ -444,18 +444,6 @@ app.get("/reviews", async (req, res) => {
   }
 });
 
-// Get reviews by user ID
-app.get("/reviews/user/:id", async (req, res) => {
-  try {
-    const limit = parseInt(req.query.limit) || 20;
-    const reviews = await getUserReviews(req.params.id, limit);
-    res.json({ count: reviews.length, reviews });
-  } catch (error) {
-    console.error("Error fetching user reviews:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Get reviews by media title
 app.get("/reviews/media/:title", async (req, res) => {
   try {

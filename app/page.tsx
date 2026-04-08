@@ -18,9 +18,12 @@ export default function Home() {
           getTrendingMovies()
         ]);
         
-        // Use a mix of popular and trending movies for the page
+        // Combine and deduplicate movies by ID
         const allMovies = [...(trendingMoviesData || []), ...(popularMoviesData || [])];
-        setMovies(allMovies && allMovies.length > 0 ? allMovies : []);
+        const uniqueMovies = Array.from(
+          new Map(allMovies.map(movie => [movie.id, movie])).values()
+        );
+        setMovies(uniqueMovies && uniqueMovies.length > 0 ? uniqueMovies : []);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -95,7 +98,7 @@ export default function Home() {
                 <div className="flex gap-2">
                   {featured.map((_, i) => (
                     <button
-                      key={i}
+                      key={`dot-${i}`}
                       onClick={() => setCurrentIndex(i)}
                       className={`h-2 rounded-full transition ${i === currentIndex ? 'w-8 bg-amber-400' : 'w-2 bg-white/40 hover:bg-white/60'}`}
                     />
