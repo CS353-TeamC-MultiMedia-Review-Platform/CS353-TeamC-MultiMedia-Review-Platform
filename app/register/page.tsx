@@ -1,11 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, isLoggedIn } = useAuth();
+
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push('/dashboard');
+    }
+  }, [isLoggedIn, router]);
 
   const [form, setForm] = useState({
     name: "",
