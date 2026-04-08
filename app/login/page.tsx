@@ -2,10 +2,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Navigation from "../components/Navigation";
-import { saveAuthUser } from "../lib/authStorage";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -49,7 +50,7 @@ export default function LoginPage() {
       }
 
       // Also use the centralized utility
-      saveAuthUser({
+      login({
         token: data.token,
         uid: data.uid,
         userName: data.name,

@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { saveAuthUser } from "../lib/authStorage";
+import { useAuth } from "../context/AuthContext";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     name: "",
@@ -62,7 +63,7 @@ export default function RegisterPage() {
       }
 
       // Also use the centralized utility
-      saveAuthUser({
+      login({
         token: data.token,
         uid: data.uid,
         userName: data.name,

@@ -3,44 +3,22 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { getAuthUser, clearAuthUser } from "../lib/authStorage";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
+  const { isLoggedIn, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Check login status on mount and update when storage changes
+  // Check login status on mount
   useEffect(() => {
     setMounted(true);
-
-    const checkLoginStatus = () => {
-      const authUser = getAuthUser();
-      setIsLoggedIn(authUser !== null);
-    };
-
-    checkLoginStatus();
-
-    // Listen for storage changes (for when user logs in)
-    const handleStorageChange = () => {
-      checkLoginStatus();
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    // Also listen for changes in the same window
-    const interval = setInterval(checkLoginStatus, 500);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
-    };
   }, []);
 
   const handleLogout = () => {
-    clearAuthUser();
-    setIsLoggedIn(false);
+    logout();
     router.push("/login");
   };
 

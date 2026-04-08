@@ -3,15 +3,16 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { clearAuthUser } from '../lib/authStorage';
+import { useAuth } from '../context/AuthContext';
 
 export default function DashboardSidebar() {
   const router = useRouter();
+  const { logout } = useAuth();
   const [isOpen, setIsOpen] = useState(true);
 
   const handleLogout = () => {
     // Clear the auth token
-    clearAuthUser();
+    logout();
     router.push('/login');
   };
 
