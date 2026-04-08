@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { getUserId, getUserName } from "../lib/authStorage";
 
 interface Review {
   id: string;
@@ -38,8 +39,8 @@ export default function DashboardPage() {
     const checkAuth = async () => {
       setLoading(true);
       try {
-        const uid = localStorage.getItem("uid");
-        const name = localStorage.getItem("userName");
+        const uid = getUserId();
+        const name = getUserName();
 
         if (!uid || !name) {
           router.push("/login");

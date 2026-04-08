@@ -48,11 +48,6 @@ export default function LoginPage() {
         return;
       }
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("uid", data.uid);
-      localStorage.setItem("userName", data.name);
-      document.cookie = `token=${data.token}; path=/`;
-
       // Also use the centralized utility
       saveAuthUser({
         token: data.token,
