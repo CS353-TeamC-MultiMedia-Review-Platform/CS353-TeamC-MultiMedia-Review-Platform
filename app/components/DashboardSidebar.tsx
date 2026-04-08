@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { clearAuthUser } from '../lib/authStorage';
 
 export default function DashboardSidebar() {
   const router = useRouter();
@@ -10,7 +11,7 @@ export default function DashboardSidebar() {
 
   const handleLogout = () => {
     // Clear the auth token
-    localStorage.removeItem('authToken');
+    clearAuthUser();
     router.push('/login');
   };
 

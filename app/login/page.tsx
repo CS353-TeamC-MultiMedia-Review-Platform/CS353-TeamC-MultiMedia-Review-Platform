@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Navigation from "../components/Navigation";
+import { saveAuthUser } from "../lib/authStorage";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -50,7 +51,14 @@ export default function LoginPage() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("uid", data.uid);
       localStorage.setItem("userName", data.name);
-      localStorage.setItem("authToken", data.uid);
+      document.cookie = `token=${data.token}; path=/`;
+
+      // Also use the centralized utility
+      saveAuthUser({
+        token: data.token,
+        uid: data.uid,
+        userName: data.name,
+      });
 
       router.push("/dashboard");
     } catch {

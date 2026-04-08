@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { getAuthUser, clearAuthUser } from "../lib/authStorage";
 
 export default function Navigation() {
   const router = useRouter();
@@ -16,8 +17,8 @@ export default function Navigation() {
     setMounted(true);
 
     const checkLoginStatus = () => {
-      const token = localStorage.getItem("authToken");
-      setIsLoggedIn(!!token);
+      const authUser = getAuthUser();
+      setIsLoggedIn(authUser !== null);
     };
 
     checkLoginStatus();
@@ -38,11 +39,7 @@ export default function Navigation() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("uid");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("authToken");
-    document.cookie = "authToken=; path=/";
+    clearAuthUser();
     setIsLoggedIn(false);
     router.push("/login");
   };

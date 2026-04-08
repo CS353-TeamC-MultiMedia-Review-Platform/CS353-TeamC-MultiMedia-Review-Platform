@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Navigation from '../components/Navigation';
+import { isAuthenticated } from '../lib/authStorage';
 
 export default function DashboardLayout({
   children,
@@ -13,9 +14,7 @@ export default function DashboardLayout({
 
   useEffect(() => {
     // Check for auth token
-    const authToken = localStorage.getItem('authToken');
-    
-    if (!authToken) {
+    if (!isAuthenticated()) {
       // Redirect to login if no token
       router.push('/login');
     }

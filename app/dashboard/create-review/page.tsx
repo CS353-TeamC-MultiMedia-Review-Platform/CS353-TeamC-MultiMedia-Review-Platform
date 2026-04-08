@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getAuthToken, getUserId, getUserName } from '../../lib/authStorage';
 
 interface ReviewFormData {
   rating: number;
@@ -77,8 +78,8 @@ export default function CreateReviewPage() {
 
     try {
       // Get user info from localStorage
-      const userId = localStorage.getItem('uid');
-      const userName = localStorage.getItem('userName');
+      const userId = getUserId();
+      const userName = getUserName();
 
       if (!userId) {
         setErrors({ general: 'You must be logged in to create a review' });
@@ -103,7 +104,7 @@ export default function CreateReviewPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${getAuthToken()}`,
         },
         body: JSON.stringify(payload),
       });

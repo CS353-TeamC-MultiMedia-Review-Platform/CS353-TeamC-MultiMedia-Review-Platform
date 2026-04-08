@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { saveAuthUser } from "../lib/authStorage";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -63,8 +64,14 @@ export default function RegisterPage() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("uid", data.uid);
       localStorage.setItem("userName", data.name);
+      document.cookie = `token=${data.token}; path=/`;
 
-      document.cookie = `authToken=${data.uid}; path=/`;
+      // Also use the centralized utility
+      saveAuthUser({
+        token: data.token,
+        uid: data.uid,
+        userName: data.name,
+      });
 
       router.push("/");
     } catch (error) {

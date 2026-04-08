@@ -12,8 +12,8 @@ export function middleware(request: NextRequest) {
   );
 
   // Check for authentication token in cookies or headers
-  const token = request.cookies.get('authToken')?.value || 
-                request.headers.get('x-auth-token');
+  const token = request.cookies.get('token')?.value || 
+                request.headers.get('authorization')?.replace('Bearer ', '');
 
   // Redirect to login if trying to access protected route without token
   if (isProtectedRoute && !token) {
