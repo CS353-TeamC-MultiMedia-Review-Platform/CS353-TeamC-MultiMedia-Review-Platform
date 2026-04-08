@@ -372,8 +372,8 @@ app.post("/auth/login", async (req, res) => {
 
 // REVIEW ROUTES
 
-// Create a new review
-app.post("/reviews/create", async (req, res) => {
+// Create a new review (requires authentication)
+app.post("/reviews/create", authMiddleware, async (req, res) => {
   try {
     const {
       userId,
@@ -386,14 +386,20 @@ app.post("/reviews/create", async (req, res) => {
       tags,
     } = req.body;
 
-    // Verify user authentication
-    if (!userId) {
+    // Verify user authentication via middleware
+    // req.user is set by authMiddleware with decoded token
+    if (!req.user || !req.user.uid) {
       return res.status(401).json({ error: "User must be authenticated" });
     }
 
+    // Verify userId matches authenticated user (security check)
+    if (userId && userId !== req.user.uid) {
+      return res.status(403).json({ error: "Cannot create review for another user" });
+    }
+
     const reviewData = {
-      userId,
-      userName,
+      userId: req.user.uid,
+      userName: userName || req.user.email || "Anonymous",
       rating,
       reviewText,
       mediaTitle,
@@ -462,10 +468,15 @@ app.get("/reviews/media/:title", async (req, res) => {
   }
 });
 
-// Update a review
-app.put("/reviews/:id", async (req, res) => {
+// Update a review (requires authentication)
+app.put("/reviews/:id", authMiddleware, async (req, res) => {
   try {
-    const { userId, rating, reviewText, tags } = req.body;
+    const { rating, reviewText, tags } = req.body;
+
+    // Verify user is authenticated via middleware
+    if (!req.user || !req.user.uid) {
+      return res.status(401).json({ error: "User must be authenticated" });
+    }
 
     // Get the existing review to verify ownership
     const existingReview = await getReview(req.params.id);
@@ -474,7 +485,7 @@ app.put("/reviews/:id", async (req, res) => {
     }
 
     // Verify the user owns this review
-    if (existingReview.userId !== userId) {
+    if (existingReview.userId !== req.user.uid) {
       return res
         .status(403)
         .json({ error: "You can only edit your own reviews" });
@@ -494,10 +505,13 @@ app.put("/reviews/:id", async (req, res) => {
   }
 });
 
-// Delete a review
-app.delete("/reviews/:id", async (req, res) => {
+// Delete a review (requires authentication)
+app.delete("/reviews/:id", authMiddleware, async (req, res) => {
   try {
-    const { userId } = req.body;
+    // Verify user is authenticated via middleware
+    if (!req.user || !req.user.uid) {
+      return res.status(401).json({ error: "User must be authenticated" });
+    }
 
     // Get the existing review to verify ownership
     const existingReview = await getReview(req.params.id);
@@ -506,7 +520,7 @@ app.delete("/reviews/:id", async (req, res) => {
     }
 
     // Verify the user owns this review
-    if (existingReview.userId !== userId) {
+    if (existingReview.userId !== req.user.uid) {
       return res
         .status(403)
         .json({ error: "You can only delete your own reviews" });
@@ -561,38 +575,6 @@ app.get("/test-get", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("Error retrieving from Firebase");
-  }
-});
-
-// CREATE REVIEW
-app.post("/reviews/create", authMiddleware , async (req, res) => {
-  try {
-    const { rating, reviewText, mediaId } = req.body;
-    const userId = req.user.uid;
-
-    // Validation
-    if (!userId || !rating || !reviewText || !mediaId) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    const newReview = {
-      userId,
-      rating,
-      reviewText,
-      mediaId,
-      createdAt: new Date(),
-    };
-
-    const docRef = await db.collection("reviews").add(newReview);
-
-    res.status(201).json({
-      message: "Review created successfully",
-      reviewId: docRef.id,
-    });
-
-  } catch (error) {
-    console.error("Error creating review:", error);
-    res.status(500).json({ error: "Server error" });
   }
 });
 
