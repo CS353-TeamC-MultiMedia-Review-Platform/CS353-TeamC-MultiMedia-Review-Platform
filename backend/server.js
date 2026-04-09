@@ -350,9 +350,35 @@ app.post("/auth/login", async (req, res) => {
   }
 
   try {
-    // Get user by email using Admin SDK
-    const userRecord = await admin.auth().getUserByEmail(email);
-    
+    // Verify password using Firebase REST API
+    const firebaseRestApiKey = process.env.FIREBASE_API_KEY;
+    const response = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseRestApiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+          returnSecureToken: true,
+        }),
+      },
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(401).json({
+        error:
+          data.error?.message === "INVALID_LOGIN_CREDENTIALS"
+            ? "Invalid email or password"
+            : "Login failed",
+      });
+    }
+
+    // Get user info to include display name
+    const userRecord = await admin.auth().getUser(data.localId);
+
     // Create custom token for the user
     const token = await admin.auth().createCustomToken(userRecord.uid);
 
@@ -363,10 +389,8 @@ app.post("/auth/login", async (req, res) => {
       name: userRecord.displayName || "",
     });
   } catch (err) {
-    if (err.code === 'auth/user-not-found') {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-    res.status(500).json({ error: err.message });
+    console.error("Login error:", err.message);
+    res.status(500).json({ error: "Login failed" });
   }
 });
 
@@ -394,7 +418,9 @@ app.post("/reviews/create", authMiddleware, async (req, res) => {
 
     // Verify userId matches authenticated user (security check)
     if (userId && userId !== req.user.uid) {
-      return res.status(403).json({ error: "Cannot create review for another user" });
+      return res
+        .status(403)
+        .json({ error: "Cannot create review for another user" });
     }
 
     const reviewData = {
@@ -573,13 +599,12 @@ app.get("/reviews/user/:id", authMiddleware, async (req, res) => {
       .where("userId", "==", req.params.id)
       .get();
 
-    const reviews = snapshot.docs.map(doc => ({
+    const reviews = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
     res.json(reviews);
-
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }
