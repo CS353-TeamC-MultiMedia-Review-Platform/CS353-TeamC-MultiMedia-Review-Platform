@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { getAuthToken, getUserId, getUserName } from '../../lib/authStorage';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { getAuthToken, getUserId, getUserName } from "../../lib/authStorage";
 
 interface ReviewFormData {
   rating: number;
   reviewText: string;
   mediaId: string;
   mediaTitle: string;
-  mediaType: 'movie' | 'music' | 'book';
+  mediaType: "movie" | "music" | "book";
 }
 
 export default function CreateReviewPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<ReviewFormData>({
     rating: 5,
-    reviewText: '',
-    mediaId: '',
-    mediaTitle: '',
-    mediaType: 'movie',
+    reviewText: "",
+    mediaId: "",
+    mediaTitle: "",
+    mediaType: "movie",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -31,19 +31,19 @@ export default function CreateReviewPage() {
     const newErrors: Record<string, string> = {};
 
     if (formData.rating < 1 || formData.rating > 5) {
-      newErrors.rating = 'Rating must be between 1 and 5';
+      newErrors.rating = "Rating must be between 1 and 5";
     }
 
     if (!formData.reviewText.trim()) {
-      newErrors.reviewText = 'Review text is required';
+      newErrors.reviewText = "Review text is required";
     } else if (formData.reviewText.trim().length < 10) {
-      newErrors.reviewText = 'Review must be at least 10 characters';
+      newErrors.reviewText = "Review must be at least 10 characters";
     } else if (formData.reviewText.length > 2000) {
-      newErrors.reviewText = 'Review cannot exceed 2000 characters';
+      newErrors.reviewText = "Review cannot exceed 2000 characters";
     }
 
     if (!formData.mediaTitle.trim()) {
-      newErrors.mediaTitle = 'Please select or enter a media title';
+      newErrors.mediaTitle = "Please select or enter a media title";
     }
 
     setErrors(newErrors);
@@ -51,15 +51,17 @@ export default function CreateReviewPage() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'rating' ? parseInt(value) : value,
+      [name]: name === "rating" ? parseInt(value) : value,
     }));
     if (errors[name]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
@@ -82,28 +84,27 @@ export default function CreateReviewPage() {
       const userName = getUserName();
 
       if (!userId) {
-        setErrors({ general: 'You must be logged in to create a review' });
-        router.push('/login');
+        setErrors({ general: "You must be logged in to create a review" });
+        router.push("/login");
         return;
       }
 
-      // Prepare request payload
+      // Prepare request payload (createdAt is set by backend)
       const payload = {
         userId,
-        userName: userName || 'Anonymous',
+        userName: userName || "Anonymous",
         rating: formData.rating,
         reviewText: formData.reviewText,
         mediaId: formData.mediaId || undefined,
         mediaTitle: formData.mediaTitle,
         mediaType: formData.mediaType,
-        createdAt: new Date().toISOString(),
       };
 
       // Send to backend
-      const response = await fetch('http://localhost:5001/reviews/create', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5001/reviews/create", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${getAuthToken()}`,
         },
         body: JSON.stringify(payload),
@@ -112,16 +113,19 @@ export default function CreateReviewPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setErrors({ general: data.error || 'Failed to create review' });
+        setErrors({ general: data.error || "Failed to create review" });
         return;
       }
 
       // Success - redirect to my-reviews
-      router.push('/dashboard/my-reviews?created=true');
+      router.push("/dashboard/my-reviews?created=true");
     } catch (error) {
-      console.error('Error creating review:', error);
+      console.error("Error creating review:", error);
       setErrors({
-        general: error instanceof Error ? error.message : 'An unexpected error occurred',
+        general:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
       });
     } finally {
       setSubmitting(false);
@@ -129,16 +133,23 @@ export default function CreateReviewPage() {
   };
 
   return (
-    <div className="min-h-screen pb-12 bg-slate-900">
+    <div className="min-h-screen pt-20 pb-12 bg-slate-900">
       <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         {/* Header */}
         <div className="py-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-4xl font-bold text-white mb-2">Create Review</h1>
-              <p className="text-slate-400">Share your thoughts on a movie, album, or book</p>
+              <h1 className="text-4xl font-bold text-white mb-2">
+                Create Review
+              </h1>
+              <p className="text-slate-400">
+                Share your thoughts on a movie, album, or book
+              </p>
             </div>
-            <Link href="/dashboard" className="text-amber-400 hover:text-amber-300">
+            <Link
+              href="/dashboard"
+              className="text-amber-400 hover:text-amber-300"
+            >
               ← Back to Dashboard
             </Link>
           </div>
@@ -155,7 +166,9 @@ export default function CreateReviewPage() {
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Media Selection */}
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-white">What are you reviewing?</h2>
+              <h2 className="text-xl font-semibold text-white">
+                What are you reviewing?
+              </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
@@ -183,11 +196,13 @@ export default function CreateReviewPage() {
                     name="mediaTitle"
                     value={formData.mediaTitle}
                     onChange={handleChange}
-                    placeholder={`Enter ${formData.mediaType === 'music' ? 'album/artist' : formData.mediaType} title`}
+                    placeholder={`Enter ${formData.mediaType === "music" ? "album/artist" : formData.mediaType} title`}
                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
                   />
                   {errors.mediaTitle && (
-                    <p className="mt-1 text-sm text-red-400">{errors.mediaTitle}</p>
+                    <p className="mt-1 text-sm text-red-400">
+                      {errors.mediaTitle}
+                    </p>
                   )}
                 </div>
               </div>
@@ -218,12 +233,12 @@ export default function CreateReviewPage() {
                     key={star}
                     type="button"
                     onClick={() =>
-                      setFormData(prev => ({ ...prev, rating: star }))
+                      setFormData((prev) => ({ ...prev, rating: star }))
                     }
                     className={`w-16 h-16 text-3xl rounded-lg transition transform ${
                       formData.rating >= star
-                        ? 'bg-amber-500 text-white scale-110'
-                        : 'bg-slate-700 text-slate-500 hover:bg-slate-600'
+                        ? "bg-amber-500 text-white scale-110"
+                        : "bg-slate-700 text-slate-500 hover:bg-slate-600"
                     }`}
                   >
                     ★
@@ -231,15 +246,22 @@ export default function CreateReviewPage() {
                 ))}
               </div>
               <p className="text-sm text-slate-400">
-                Rating: <span className="text-amber-400 font-semibold">{formData.rating}/5</span>
+                Rating:{" "}
+                <span className="text-amber-400 font-semibold">
+                  {formData.rating}/5
+                </span>
               </p>
-              {errors.rating && <p className="text-sm text-red-400">{errors.rating}</p>}
+              {errors.rating && (
+                <p className="text-sm text-red-400">{errors.rating}</p>
+              )}
             </div>
 
             {/* Review Text */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="block text-xl font-semibold text-white">Your Review *</label>
+                <label className="block text-xl font-semibold text-white">
+                  Your Review *
+                </label>
                 <span className="text-sm text-slate-400">
                   {formData.reviewText.length}/2000
                 </span>
@@ -269,10 +291,11 @@ export default function CreateReviewPage() {
               >
                 {submitting ? (
                   <span className="flex items-center justify-center gap-2">
-                    <span className="animate-spin">⏳</span> Publishing Review...
+                    <span className="animate-spin">⏳</span> Publishing
+                    Review...
                   </span>
                 ) : (
-                  'Publish Review'
+                  "Publish Review"
                 )}
               </button>
               <Link
@@ -287,10 +310,14 @@ export default function CreateReviewPage() {
 
         {/* Tips Section */}
         <div className="mt-8 bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">💡 Tips for a Great Review</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">
+            💡 Tips for a Great Review
+          </h3>
           <ul className="space-y-2 text-slate-300">
             <li>• Be specific about what you liked or didn't like</li>
-            <li>• Mention key performances, plot points, or production details</li>
+            <li>
+              • Mention key performances, plot points, or production details
+            </li>
             <li>• Compare it to similar works if relevant</li>
             <li>• Keep it respectful and constructive</li>
             <li>• Avoid major spoilers or warn readers beforehand</li>
