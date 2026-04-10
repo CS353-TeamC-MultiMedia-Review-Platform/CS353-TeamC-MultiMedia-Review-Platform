@@ -39,6 +39,23 @@ async function getUserData(uid) {
   return doc.data();
 }
 
+// UTILITY FUNCTIONS
+
+// Convert Firestore Timestamp to ISO string for JSON serialization
+function convertTimestamp(obj) {
+  if (!obj) return obj;
+
+  const converted = { ...obj };
+  if (
+    converted.createdAt &&
+    typeof converted.createdAt === "object" &&
+    converted.createdAt.toDate
+  ) {
+    converted.createdAt = converted.createdAt.toDate().toISOString();
+  }
+  return converted;
+}
+
 // REVIEW VALIDATION FUNCTIONS
 
 function validateReviewData(data) {
@@ -128,7 +145,7 @@ async function getReview(reviewId) {
     return null;
   }
 
-  return { id: doc.id, ...doc.data() };
+  return convertTimestamp({ id: doc.id, ...doc.data() });
 }
 
 async function getUserReviews(userId, limit = 20) {
@@ -139,10 +156,12 @@ async function getUserReviews(userId, limit = 20) {
     .get();
 
   // Sort in application layer since Firestore composite index isn't available
-  const reviews = snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  const reviews = snapshot.docs.map((doc) =>
+    convertTimestamp({
+      id: doc.id,
+      ...doc.data(),
+    }),
+  );
 
   // Sort by createdAt descending
   reviews.sort((a, b) => {
@@ -157,14 +176,20 @@ async function getUserReviews(userId, limit = 20) {
 async function getAllReviews(limit = 50) {
   const snapshot = await db
     .collection("reviews")
-    .orderBy("createdAt", "desc")
-    .limit(limit)
+    .limit(limit * 2)
     .get();
 
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  const reviews = snapshot.docs.map((doc) =>
+    convertTimestamp({
+      id: doc.id,
+      ...doc.data(),
+    }),
+  );
+
+  // Shuffle randomly using sort with Math.random()
+  reviews.sort(() => Math.random() - 0.5);
+
+  return reviews.slice(0, limit);
 }
 
 async function getReviewsByMedia(mediaTitle, limit = 20) {
@@ -175,10 +200,12 @@ async function getReviewsByMedia(mediaTitle, limit = 20) {
     .get();
 
   // Sort in application layer
-  const reviews = snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  const reviews = snapshot.docs.map((doc) =>
+    convertTimestamp({
+      id: doc.id,
+      ...doc.data(),
+    }),
+  );
 
   // Sort by createdAt descending
   reviews.sort((a, b) => {
@@ -352,12 +379,14 @@ app.post("/auth/login", async (req, res) => {
   try {
     // Verify password using Firebase REST API
     const firebaseRestApiKey = process.env.FIREBASE_API_KEY;
-    
+
     if (!firebaseRestApiKey) {
       console.error("FIREBASE_API_KEY not set in environment variables");
-      return res.status(500).json({ error: "Server configuration error: missing API key" });
+      return res
+        .status(500)
+        .json({ error: "Server configuration error: missing API key" });
     }
-    
+
     const response = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseRestApiKey}`,
       {
@@ -386,11 +415,11 @@ app.post("/auth/login", async (req, res) => {
     // Get user info to include display name
     const userRecord = await admin.auth().getUser(data.localId);
 
-    // Create custom token for the user
-    const token = await admin.auth().createCustomToken(userRecord.uid);
+    // Use ID Token from Firebase (more reliable than custom token)
+    const idToken = data.idToken;
 
     res.json({
-      token,
+      token: idToken,
       uid: userRecord.uid,
       email: userRecord.email,
       name: userRecord.displayName || "",
@@ -606,10 +635,12 @@ app.get("/reviews/user/:id", async (req, res) => {
       .where("userId", "==", req.params.id)
       .get();
 
-    const reviews = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const reviews = snapshot.docs.map((doc) =>
+      convertTimestamp({
+        id: doc.id,
+        ...doc.data(),
+      }),
+    );
 
     res.json({ reviews });
   } catch (error) {
