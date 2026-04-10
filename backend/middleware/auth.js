@@ -12,17 +12,15 @@ const authMiddleware = async (req, res, next) => {
     // Extract token
     const token = authHeader.split("Bearer ")[1];
 
-    // Verify custom token with Firebase
-    // Custom tokens are verified by decoding and validating the JWT signature
-    const decodedToken = await admin.auth().verifyCustomToken(token);
+    // Verify ID token with Firebase
+    const decodedToken = await admin.auth().verifyIdToken(token);
 
     // Attach user to request
     req.user = decodedToken;
 
     next(); // continue to route
-
   } catch (error) {
-    console.error('Auth middleware error:', error.message);
+    console.error("Auth middleware error:", error.message);
     return res.status(401).json({ error: "Invalid or expired token" });
   }
 };
