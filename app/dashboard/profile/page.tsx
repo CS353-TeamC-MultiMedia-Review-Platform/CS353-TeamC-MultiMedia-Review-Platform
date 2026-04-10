@@ -1,21 +1,23 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useState } from 'react';
+import Link from "next/link";
+import { useState } from "react";
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: 'Alex Chen',
-    email: 'alex@example.com',
-    bio: 'A passionate reviewer of movies, books, and music.',
-    location: 'San Francisco, CA',
-    joinDate: 'January 2024',
+    name: "Alex Chen",
+    email: "alex@example.com",
+    bio: "A passionate reviewer of movies, books, and music.",
+    location: "San Francisco, CA",
+    joinDate: "January 2024",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    setProfile(prev => ({
+    setProfile((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -38,23 +40,33 @@ export default function ProfilePage() {
             <div className="space-y-6">
               <div>
                 <p className="text-slate-400 text-sm">Name</p>
-                <p className="text-white text-lg font-semibold mt-1">{profile.name}</p>
+                <p className="text-white text-lg font-semibold mt-1">
+                  {profile.name}
+                </p>
               </div>
               <div>
                 <p className="text-slate-400 text-sm">Email</p>
-                <p className="text-white text-lg font-semibold mt-1">{profile.email}</p>
+                <p className="text-white text-lg font-semibold mt-1">
+                  {profile.email}
+                </p>
               </div>
               <div>
                 <p className="text-slate-400 text-sm">Bio</p>
-                <p className="text-white text-lg font-semibold mt-1">{profile.bio}</p>
+                <p className="text-white text-lg font-semibold mt-1">
+                  {profile.bio}
+                </p>
               </div>
               <div>
                 <p className="text-slate-400 text-sm">Location</p>
-                <p className="text-white text-lg font-semibold mt-1">{profile.location}</p>
+                <p className="text-white text-lg font-semibold mt-1">
+                  {profile.location}
+                </p>
               </div>
               <div>
                 <p className="text-slate-400 text-sm">Member Since</p>
-                <p className="text-white text-lg font-semibold mt-1">{profile.joinDate}</p>
+                <p className="text-white text-lg font-semibold mt-1">
+                  {profile.joinDate}
+                </p>
               </div>
 
               <button
@@ -126,7 +138,10 @@ export default function ProfilePage() {
         </div>
 
         <div className="mt-8">
-          <Link href="/dashboard" className="text-amber-400 hover:text-amber-300">
+          <Link
+            href="/dashboard"
+            className="text-amber-400 hover:text-amber-300"
+          >
             ← Back to Dashboard
           </Link>
         </div>

@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Critiq - Multimedia Review App",
-  description: "Your ultimate destination for reviewing and discovering great books, movies, and music",
+  description:
+    "Your ultimate destination for reviewing and discovering great books, movies, and music",
 };
 
 export default function RootLayout({
@@ -31,12 +32,9 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Navigation />
-          <div className="pt-20">
-            {children}
-          </div>
+          {children}
         </AuthProvider>
       </body>
     </html>
   );
-  
 }
