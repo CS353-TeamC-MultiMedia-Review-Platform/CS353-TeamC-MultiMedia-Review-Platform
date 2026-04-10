@@ -1,6 +1,6 @@
 // IMPORTS
 
-require("dotenv").config();
+require("dotenv").config({ path: ".env.local" });
 
 const express = require("express");
 const cors = require("cors");
@@ -352,6 +352,12 @@ app.post("/auth/login", async (req, res) => {
   try {
     // Verify password using Firebase REST API
     const firebaseRestApiKey = process.env.FIREBASE_API_KEY;
+    
+    if (!firebaseRestApiKey) {
+      console.error("FIREBASE_API_KEY not set in environment variables");
+      return res.status(500).json({ error: "Server configuration error: missing API key" });
+    }
+    
     const response = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseRestApiKey}`,
       {
@@ -368,6 +374,7 @@ app.post("/auth/login", async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error("Login failed:", data.error?.message);
       return res.status(401).json({
         error:
           data.error?.message === "INVALID_LOGIN_CREDENTIALS"
@@ -592,7 +599,7 @@ app.get("/test-get", async (req, res) => {
   }
 });
 
-app.get("/reviews/user/:id", authMiddleware, async (req, res) => {
+app.get("/reviews/user/:id", async (req, res) => {
   try {
     const snapshot = await db
       .collection("reviews")

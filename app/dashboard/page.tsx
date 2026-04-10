@@ -65,14 +65,8 @@ export default function DashboardPage() {
         }
 
         // Fetch user's reviews from backend
-        const token = localStorage.getItem('token');
         const response = await fetch(
-          `http://localhost:5001/reviews/user/${uid}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          }
+          `http://localhost:5001/reviews/user/${uid}`
         );
         if (response.ok) {
           const data = await response.json();

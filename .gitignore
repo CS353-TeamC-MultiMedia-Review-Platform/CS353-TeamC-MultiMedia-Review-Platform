@@ -11,6 +11,10 @@
 !.yarn/releases
 !.yarn/versions
 
+# Firebase service account key (sensitive credentials)
+backend/serviceAccountKey.json
+serviceAccountKey.json
+
 # testing
 /coverage
 
