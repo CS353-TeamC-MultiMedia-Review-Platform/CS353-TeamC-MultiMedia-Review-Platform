@@ -86,87 +86,102 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md p-6 border rounded-xl shadow bg-white text-black">
-        <h1 className="text-2xl font-bold mb-6">Create an Account</h1>
-
-        {errors.general && (
-          <div className="bg-red-100 text-red-600 p-3 rounded mb-4">
-            {errors.general}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 pt-20 pb-12">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center">
+              <span className="text-black font-bold text-xl">★</span>
+            </div>
+            <span className="text-white font-bold text-2xl">Critiq</span>
           </div>
-        )}
+          <h1 className="text-4xl font-bold text-white mb-2">
+            Create Account
+          </h1>
+          <p className="text-slate-400">Join our community of reviewers</p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <input
-              name="name"
-              placeholder="Full Name"
-              value={form.name}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name}</p>
-            )}
+        <div className="bg-slate-800/50 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
+          {errors.general && (
+            <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-lg mb-6">
+              {errors.general}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <input
+                name="name"
+                placeholder="Full Name"
+                value={form.name}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
+              />
+              {errors.name && (
+                <p className="text-red-400 text-sm mt-1">{errors.name}</p>
+              )}
+            </div>
+
+            <div>
+              <input
+                name="email"
+                type="email"
+                placeholder="Email Address"
+                value={form.email}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
+              />
+              {errors.email && (
+                <p className="text-red-400 text-sm mt-1">{errors.email}</p>
+              )}
+            </div>
+
+            <div>
+              <input
+                name="password"
+                type="password"
+                placeholder="Password (min. 6 characters)"
+                value={form.password}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
+              />
+              {errors.password && (
+                <p className="text-red-400 text-sm mt-1">{errors.password}</p>
+              )}
+            </div>
+
+            <div>
+              <input
+                name="confirm"
+                type="password"
+                placeholder="Confirm Password"
+                value={form.confirm}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
+              />
+              {errors.confirm && (
+                <p className="text-red-400 text-sm mt-1">{errors.confirm}</p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-amber-500/50 text-black font-bold py-3 rounded-lg transition transform hover:scale-105 disabled:hover:scale-100"
+            >
+              {loading ? "Creating Account..." : "Create Account"}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-slate-400 text-sm">
+              Already have an account?{" "}
+              <a href="/login" className="text-amber-400 hover:text-amber-300 font-semibold">
+                Log in
+              </a>
+            </p>
           </div>
-
-          <div>
-            <input
-              name="email"
-              type="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email}</p>
-            )}
-          </div>
-
-          <div>
-            <input
-              name="password"
-              type="password"
-              placeholder="Password (min. 6 characters)"
-              value={form.password}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password}</p>
-            )}
-          </div>
-
-          <div>
-            <input
-              name="confirm"
-              type="password"
-              placeholder="Confirm Password"
-              value={form.confirm}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-            />
-            {errors.confirm && (
-              <p className="text-red-500 text-sm">{errors.confirm}</p>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? "Registering..." : "Register"}
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-sm">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
-            Log in
-          </a>
-        </p>
+        </div>
       </div>
     </div>
   );
