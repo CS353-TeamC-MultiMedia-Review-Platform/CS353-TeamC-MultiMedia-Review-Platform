@@ -65,12 +65,18 @@ export default function DashboardPage() {
         }
 
         // Fetch user's reviews from backend
+        const token = localStorage.getItem('token');
         const response = await fetch(
           `http://localhost:5001/reviews/user/${uid}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          }
         );
         if (response.ok) {
           const data = await response.json();
-          setUserReviews(data.reviews || []);
+          setUserReviews(Array.isArray(data) ? data : (data.reviews || []));
         } else {
           setError("Failed to load reviews");
         }

@@ -604,7 +604,7 @@ app.get("/reviews/user/:id", authMiddleware, async (req, res) => {
       ...doc.data(),
     }));
 
-    res.json(reviews);
+    res.json({ reviews });
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }
