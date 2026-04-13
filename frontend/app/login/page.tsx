@@ -3,23 +3,18 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const router = useRouter();
   const { login, isLoggedIn } = useAuth();
 
   // Redirect to dashboard if already logged in
   useEffect(() => {
     if (isLoggedIn) {
-      router.push('/dashboard');
+      router.push("/dashboard");
     }
   }, [isLoggedIn, router]);
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirm: "",
-  });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
@@ -30,12 +25,8 @@ export default function RegisterPage() {
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!form.name.trim()) newErrors.name = "Name is required";
     if (!form.email.includes("@")) newErrors.email = "Invalid email format";
-    if (form.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters";
-    if (form.password !== form.confirm)
-      newErrors.confirm = "Passwords do not match";
+    if (!form.password) newErrors.password = "Password is required";
     return newErrors;
   };
 
@@ -48,24 +39,19 @@ export default function RegisterPage() {
       return;
     }
 
+    setErrors({});
     setLoading(true);
     try {
-      const apiUrl =
-        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
-      const res = await fetch(`${apiUrl}/auth/register`, {
+      const res = await fetch("http://localhost:5001/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          password: form.password,
-        }),
+        body: JSON.stringify(form),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setErrors({ general: data.error || "Registration failed" });
+        setErrors({ general: data.error });
         return;
       }
 
@@ -76,9 +62,8 @@ export default function RegisterPage() {
         userName: data.name,
       });
 
-      router.push("/");
-    } catch (error) {
-      console.error("Registration error:", error);
+      router.push("/dashboard");
+    } catch {
       setErrors({ general: "Network error, please try again" });
     } finally {
       setLoading(false);
@@ -95,10 +80,8 @@ export default function RegisterPage() {
             </div>
             <span className="text-white font-bold text-2xl">Critiq</span>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Create Account
-          </h1>
-          <p className="text-slate-400">Join our community of reviewers</p>
+          <h1 className="text-4xl font-bold text-white mb-2">Welcome Back</h1>
+          <p className="text-slate-400">Log in to your account</p>
         </div>
 
         <div className="bg-slate-800/50 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
@@ -109,19 +92,6 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <input
-                name="name"
-                placeholder="Full Name"
-                value={form.name}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
-              />
-              {errors.name && (
-                <p className="text-red-400 text-sm mt-1">{errors.name}</p>
-              )}
-            </div>
-
             <div>
               <input
                 name="email"
@@ -140,7 +110,7 @@ export default function RegisterPage() {
               <input
                 name="password"
                 type="password"
-                placeholder="Password (min. 6 characters)"
+                placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
                 className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
@@ -150,34 +120,23 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <div>
-              <input
-                name="confirm"
-                type="password"
-                placeholder="Confirm Password"
-                value={form.confirm}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
-              />
-              {errors.confirm && (
-                <p className="text-red-400 text-sm mt-1">{errors.confirm}</p>
-              )}
-            </div>
-
             <button
               type="submit"
               disabled={loading}
               className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-amber-500/50 text-black font-bold py-3 rounded-lg transition transform hover:scale-105 disabled:hover:scale-100"
             >
-              {loading ? "Creating Account..." : "Create Account"}
+              {loading ? "Logging in..." : "Log In"}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-slate-400 text-sm">
-              Already have an account?{" "}
-              <a href="/login" className="text-amber-400 hover:text-amber-300 font-semibold">
-                Log in
+              Don&apos;t have an account?{" "}
+              <a
+                href="/register"
+                className="text-amber-400 hover:text-amber-300 font-semibold"
+              >
+                Register
               </a>
             </p>
           </div>
