@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
+import { buildApiUrl, API_ENDPOINTS } from "../lib/api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -50,9 +51,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const apiUrl =
-        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
-      const res = await fetch(`${apiUrl}/auth/register`, {
+      const res = await fetch(buildApiUrl(API_ENDPOINTS.REGISTER), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

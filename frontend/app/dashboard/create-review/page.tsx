@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getAuthToken, getUserId, getUserName } from "../../lib/authStorage";
+import { buildApiUrl, API_ENDPOINTS } from "../../lib/api";
 
 interface ReviewFormData {
   rating: number;
@@ -101,7 +102,7 @@ export default function CreateReviewPage() {
       };
 
       // Send to backend
-      const response = await fetch("http://localhost:5001/reviews/create", {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.CREATE_REVIEW), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

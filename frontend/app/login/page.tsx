@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
+import { buildApiUrl, API_ENDPOINTS } from "../lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function LoginPage() {
     setErrors({});
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5001/auth/login", {
+      const res = await fetch(buildApiUrl(API_ENDPOINTS.LOGIN), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

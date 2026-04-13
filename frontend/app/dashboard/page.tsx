@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getUserId, getUserName, getAuthToken } from "../lib/authStorage";
+import { buildApiUrl, API_ENDPOINTS } from "../lib/api";
 
 interface Review {
   id: string;
@@ -54,7 +55,9 @@ export default function DashboardPage() {
 
         // Fetch user's full data from backend (including email)
         try {
-          const userResponse = await fetch(`http://localhost:5001/data/${uid}`);
+          const userResponse = await fetch(
+            buildApiUrl(API_ENDPOINTS.USER_DATA, uid),
+          );
           if (userResponse.ok) {
             const userData: UserData = await userResponse.json();
             setUserEmail(userData.email);
@@ -68,7 +71,7 @@ export default function DashboardPage() {
 
         // Fetch user's reviews from backend
         const response = await fetch(
-          `http://localhost:5001/reviews/user/${uid}`,
+          buildApiUrl(API_ENDPOINTS.GET_USER_REVIEWS, uid),
         );
         if (response.ok) {
           const data = await response.json();
@@ -97,7 +100,7 @@ export default function DashboardPage() {
     setDeleting(true);
     try {
       const response = await fetch(
-        `http://localhost:5001/reviews/${deleteConfirmId}`,
+        buildApiUrl(API_ENDPOINTS.DELETE_REVIEW, deleteConfirmId),
         {
           method: "DELETE",
           headers: {

@@ -22,7 +22,7 @@ export default function ReviewsPage() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch("http://localhost:5001/reviews");
+        const response = await fetch(buildApiUrl(API_ENDPOINTS.GET_REVIEWS));
 
         if (!response.ok) {
           throw new Error("Failed to fetch reviews");

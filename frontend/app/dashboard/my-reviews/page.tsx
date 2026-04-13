@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { getUserId, getAuthToken } from "../../lib/authStorage";
+import { buildApiUrl, API_ENDPOINTS } from "../../lib/api";
 
 interface Review {
   id: string;
@@ -34,7 +35,7 @@ function MyReviewsContent() {
         }
 
         const response = await fetch(
-          `http://localhost:5001/reviews/user/${userId}`,
+          buildApiUrl(API_ENDPOINTS.GET_USER_REVIEWS, userId),
           {
             headers: {
               Authorization: `Bearer ${getAuthToken()}`,
@@ -69,7 +70,7 @@ function MyReviewsContent() {
     setDeleting(true);
     try {
       const response = await fetch(
-        `http://localhost:5001/reviews/${deleteConfirmId}`,
+        buildApiUrl(API_ENDPOINTS.DELETE_REVIEW, deleteConfirmId),
         {
           method: "DELETE",
           headers: {
