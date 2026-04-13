@@ -10,7 +10,27 @@ const authMiddleware = require("./middleware/auth");
 
 // FIREBASE SETUP
 
-const serviceAccount = require("./serviceAccountKey.json");
+let serviceAccount;
+
+// Try to load from environment variable first (for Railway/production)
+if (process.env.FIREBASE_CREDENTIALS) {
+  try {
+    serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+  } catch (error) {
+    console.error("Failed to parse FIREBASE_CREDENTIALS:", error);
+    process.exit(1);
+  }
+} else {
+  // Fallback to file (for local development)
+  try {
+    serviceAccount = require("./serviceAccountKey.json");
+  } catch (error) {
+    console.error(
+      "serviceAccountKey.json not found and FIREBASE_CREDENTIALS not set",
+    );
+    process.exit(1);
+  }
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
