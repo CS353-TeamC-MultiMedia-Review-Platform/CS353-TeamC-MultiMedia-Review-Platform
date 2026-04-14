@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { buildApiUrl, API_ENDPOINTS } from "../lib/api";
 
 interface Review {
   id: string;
