@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   getPopularMovies,
   searchMovies,
@@ -61,6 +62,11 @@ export default function AllMovies() {
     setFiltered(sorted);
   };
 
+  const handleMovieClick = (movie: MovieItem) => {
+    // Store movie details in localStorage for the detail page
+    localStorage.setItem(`movie-${movie.id}`, JSON.stringify(movie));
+  };
+
   return (
     <main className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="mb-8">
@@ -111,7 +117,12 @@ export default function AllMovies() {
       ) : filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filtered.map((movie) => (
-            <div key={movie.id} className="group cursor-pointer h-full">
+            <Link
+              key={movie.id}
+              href={`/movies/${movie.id}`}
+              onClick={() => handleMovieClick(movie)}
+              className="group cursor-pointer h-full"
+            >
               <div className="relative overflow-hidden rounded-xl mb-4 bg-slate-800 aspect-[3/4]">
                 <img
                   src={movie.posterPath}
@@ -138,7 +149,7 @@ export default function AllMovies() {
                   {movie.overview}
                 </p>
               )}
-            </div>
+            </Link>
           ))}
         </div>
       ) : (

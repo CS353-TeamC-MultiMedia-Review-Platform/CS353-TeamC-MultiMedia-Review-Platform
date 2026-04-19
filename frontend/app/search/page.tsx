@@ -49,7 +49,12 @@ function SearchContent() {
         ) : results.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {results.map((item) => (
-              <div key={item.id} className="group cursor-pointer h-full">
+              <Link
+                key={item.id}
+                href={`/movies/${item.id}`}
+                onClick={() => localStorage.setItem(`movie-${item.id}`, JSON.stringify(item))}
+                className="group cursor-pointer h-full"
+              >
                 <div className="relative overflow-hidden rounded-xl mb-4 bg-slate-800 aspect-[3/4]">
                   <img
                     src={item.posterPath}
@@ -80,7 +85,7 @@ function SearchContent() {
                     </p>
                   )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         ) : query ? (

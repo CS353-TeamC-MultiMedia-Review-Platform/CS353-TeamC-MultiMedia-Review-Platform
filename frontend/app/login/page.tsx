@@ -43,19 +43,38 @@ export default function LoginPage() {
     setErrors({});
     setLoading(true);
     try {
-      const res = await fetch(buildApiUrl(API_ENDPOINTS.LOGIN), {
+      console.log("[Login] Attempting login with:", form.email);
+      const loginUrl = buildApiUrl(API_ENDPOINTS.LOGIN);
+      console.log("[Login] Using endpoint:", loginUrl);
+      
+      const res = await fetch(loginUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
 
+      console.log("[Login] Response status:", res.status);
+      
       const data = await res.json();
+      console.log("[Login] Response data:", { token: data.token ? "exists" : "missing", uid: data.uid, error: data.error });
 
       if (!res.ok) {
+        console.error("[Login] Login failed:", data.error);
         setErrors({ general: data.error });
+        setLoading(false);
         return;
       }
 
+      // Validate token exists
+      if (!data.token) {
+        console.error("[Login] No token in response");
+        setErrors({ general: "Login failed: No token received" });
+        setLoading(false);
+        return;
+      }
+
+      console.log("[Login] Login successful, saving auth data");
+      
       // Also use the centralized utility
       login({
         token: data.token,
@@ -63,10 +82,11 @@ export default function LoginPage() {
         userName: data.name,
       });
 
+      console.log("[Login] Auth data saved, redirecting to dashboard");
       router.push("/dashboard");
-    } catch {
-      setErrors({ general: "Network error, please try again" });
-    } finally {
+    } catch (error) {
+      console.error("[Login] Catch error:", error);
+      setErrors({ general: error instanceof Error ? error.message : "Network error, please try again" });
       setLoading(false);
     }
   };

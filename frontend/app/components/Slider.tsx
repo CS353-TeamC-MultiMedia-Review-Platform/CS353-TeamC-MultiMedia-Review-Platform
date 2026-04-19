@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
+import Link from 'next/link';
 import { MovieItem } from '@/services/mediaService';
 
 interface SliderProps {
@@ -21,6 +22,10 @@ const Slider: React.FC<SliderProps> = ({ title, items, icon }) => {
         scrollContainer.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
       }
     }
+  };
+
+  const handleMovieClick = (movie: MovieItem) => {
+    localStorage.setItem(`movie-${movie.id}`, JSON.stringify(movie));
   };
 
   return (
@@ -46,8 +51,10 @@ const Slider: React.FC<SliderProps> = ({ title, items, icon }) => {
           style={{ scrollBehavior: 'smooth' }}
         >
           {items.map((item) => (
-            <div
+            <Link
               key={item.id}
+              href={`/movies/${item.id}`}
+              onClick={() => handleMovieClick(item)}
               className="flex-shrink-0 w-48 cursor-pointer group/item"
             >
               <div className="relative overflow-hidden rounded-xl mb-4 bg-slate-800 aspect-[3/4]">
@@ -68,7 +75,7 @@ const Slider: React.FC<SliderProps> = ({ title, items, icon }) => {
               </h3>
               <p className="text-slate-400 text-xs mb-2">{item.releaseDate}</p>
               <p className="text-amber-400 font-semibold text-sm">⭐ {item.rating}/10</p>
-            </div>
+            </Link>
           ))}
         </div>
 

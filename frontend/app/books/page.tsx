@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   getPopularBooks,
   searchBooks,
@@ -61,6 +62,13 @@ export default function AllBooks() {
     setFiltered(sorted);
   };
 
+  const handleBookClick = (book: BookItem) => {
+    // Store book details in localStorage for the detail page
+    // Encode the ID to handle special characters like "/" from Open Library keys
+    const encodedId = encodeURIComponent(book.id);
+    localStorage.setItem(`book-${encodedId}`, JSON.stringify(book));
+  };
+
   return (
     <main className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="mb-8">
@@ -118,7 +126,12 @@ export default function AllBooks() {
       ) : filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filtered.map((book) => (
-            <div key={book.id} className="group cursor-pointer h-full">
+            <Link
+              key={book.id}
+              href={`/books/${encodeURIComponent(book.id)}`}
+              onClick={() => handleBookClick(book)}
+              className="group cursor-pointer h-full"
+            >
               <div className="relative overflow-hidden rounded-xl mb-4 bg-slate-800 aspect-[3/4]">
                 <img
                   src={book.image}
@@ -143,7 +156,7 @@ export default function AllBooks() {
               {book.year && (
                 <p className="text-slate-500 text-xs mt-1">{book.year}</p>
               )}
-            </div>
+            </Link>
           ))}
         </div>
       ) : (

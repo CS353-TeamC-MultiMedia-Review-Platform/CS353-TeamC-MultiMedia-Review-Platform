@@ -7,11 +7,11 @@ export const getAPIBaseUrl = (): string => {
   // Development environment
   if (typeof window === "undefined") {
     // SSR - use full URL
-    return process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
+    return process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001";
   }
 
   // Client-side
-  const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const envUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
   if (envUrl) {
     return envUrl;
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import Slider from "./components/Slider";
 import {
   getPopularMovies,
@@ -98,9 +99,13 @@ export default function Home() {
                 <p className="text-slate-300 max-w-2xl mb-8 text-base leading-relaxed line-clamp-3">
                   {item.overview}
                 </p>
-                <button className="px-8 py-3 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition transform hover:scale-105">
+                <Link
+                  href={`/movies/${item.id}`}
+                  onClick={() => localStorage.setItem(`movie-${item.id}`, JSON.stringify(item))}
+                  className="inline-block px-8 py-3 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition transform hover:scale-105"
+                >
                   Learn More
-                </button>
+                </Link>
               </div>
 
               <div className="flex justify-between items-center">

@@ -380,9 +380,32 @@ app.post("/auth/register", async (req, res) => {
       createdAt: new Date().toISOString(),
     });
 
-    const token = await admin.auth().createCustomToken(userRecord.uid);
+    // Create custom token first for authentication
+    const customToken = await admin.auth().createCustomToken(userRecord.uid);
 
-    res.json({ token, uid: userRecord.uid, name, email });
+    // Exchange custom token for ID token using Firebase REST API
+    const firebaseRestApiKey = process.env.FIREBASE_API_KEY;
+    const idTokenResponse = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseRestApiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: customToken, returnSecureToken: true }),
+      },
+    );
+
+    const idTokenData = await idTokenResponse.json();
+    
+    if (!idTokenResponse.ok) {
+      throw new Error("Failed to get ID token");
+    }
+
+    res.json({ 
+      token: idTokenData.idToken, 
+      uid: userRecord.uid, 
+      name, 
+      email 
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

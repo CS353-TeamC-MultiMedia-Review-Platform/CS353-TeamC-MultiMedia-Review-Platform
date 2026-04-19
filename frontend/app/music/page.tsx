@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   getPopularMusic,
   searchMusic,
@@ -57,6 +58,13 @@ export default function AllMusic() {
       }
     });
     setFiltered(sorted);
+  };
+
+  const handleMusicClick = (album: MusicItem) => {
+    // Store music details in localStorage for the detail page
+    // Encode the ID to handle special characters
+    const encodedId = encodeURIComponent(album.id);
+    localStorage.setItem(`music-${encodedId}`, JSON.stringify(album));
   };
 
   return (
@@ -116,7 +124,12 @@ export default function AllMusic() {
       ) : filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filtered.map((album) => (
-            <div key={album.id} className="group cursor-pointer h-full">
+            <Link
+              key={album.id}
+              href={`/music/${encodeURIComponent(album.id)}`}
+              onClick={() => handleMusicClick(album)}
+              className="group cursor-pointer h-full"
+            >
               <div className="relative overflow-hidden rounded-xl mb-4 bg-slate-800 aspect-square">
                 <img
                   src={album.image}
@@ -138,7 +151,7 @@ export default function AllMusic() {
               <p className="text-purple-400 font-semibold">
                 ⭐ {album.rating.toFixed(1)}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       ) : (
