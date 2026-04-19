@@ -9,7 +9,6 @@ import { buildApiUrl, API_ENDPOINTS } from "../../lib/api";
 interface ReviewFormData {
   rating: number;
   reviewText: string;
-  mediaId: string;
   mediaTitle: string;
   mediaType: "movie" | "music" | "book";
 }
@@ -19,7 +18,6 @@ export default function CreateReviewPage() {
   const [formData, setFormData] = useState<ReviewFormData>({
     rating: 5,
     reviewText: "",
-    mediaId: "",
     mediaTitle: "",
     mediaType: "movie",
   });
@@ -96,7 +94,6 @@ export default function CreateReviewPage() {
         userName: userName || "Anonymous",
         rating: formData.rating,
         reviewText: formData.reviewText,
-        mediaId: formData.mediaId || undefined,
         mediaTitle: formData.mediaTitle,
         mediaType: formData.mediaType,
       };
@@ -206,20 +203,6 @@ export default function CreateReviewPage() {
                     </p>
                   )}
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Media ID (optional)
-                </label>
-                <input
-                  type="text"
-                  name="mediaId"
-                  value={formData.mediaId}
-                  onChange={handleChange}
-                  placeholder="Link to specific catalog entry"
-                  className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
-                />
               </div>
             </div>
 
