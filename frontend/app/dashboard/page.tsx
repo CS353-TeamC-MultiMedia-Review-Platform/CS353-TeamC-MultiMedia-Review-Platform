@@ -164,7 +164,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen pt-20 pb-16">
+    <div className="min-h-screen pt-0 pb-16">
       {/* Header Section */}
       <div className="bg-gradient-to-br from-amber-600/20 via-slate-900 to-slate-950 border-b border-white/10 mb-12">
         <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-16">
@@ -273,31 +273,45 @@ export default function DashboardPage() {
 
         {/* Quick Actions */}
         <div className="mb-12 pb-8 border-b border-white/10">
-          <h2 className="text-2xl font-bold text-white mb-6">Explore & Review</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">
+            Explore & Review
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Link
               href="/movies"
               className="bg-gradient-to-br from-blue-600/40 to-slate-900/40 border border-blue-500/30 hover:border-blue-500/60 rounded-xl p-6 transition group"
             >
-              <p className="text-4xl mb-3 group-hover:scale-110 transition">🎬</p>
+              <p className="text-4xl mb-3 group-hover:scale-110 transition">
+                🎬
+              </p>
               <h3 className="text-white font-semibold mb-2">Browse Movies</h3>
-              <p className="text-slate-400 text-sm">Click to browse and review movies</p>
+              <p className="text-slate-400 text-sm">
+                Click to browse and review movies
+              </p>
             </Link>
             <Link
               href="/books"
               className="bg-gradient-to-br from-amber-600/40 to-slate-900/40 border border-amber-500/30 hover:border-amber-500/60 rounded-xl p-6 transition group"
             >
-              <p className="text-4xl mb-3 group-hover:scale-110 transition">📚</p>
+              <p className="text-4xl mb-3 group-hover:scale-110 transition">
+                📚
+              </p>
               <h3 className="text-white font-semibold mb-2">Browse Books</h3>
-              <p className="text-slate-400 text-sm">Click to browse and review books</p>
+              <p className="text-slate-400 text-sm">
+                Click to browse and review books
+              </p>
             </Link>
             <Link
               href="/music"
               className="bg-gradient-to-br from-purple-600/40 to-slate-900/40 border border-purple-500/30 hover:border-purple-500/60 rounded-xl p-6 transition group"
             >
-              <p className="text-4xl mb-3 group-hover:scale-110 transition">🎵</p>
+              <p className="text-4xl mb-3 group-hover:scale-110 transition">
+                🎵
+              </p>
               <h3 className="text-white font-semibold mb-2">Browse Music</h3>
-              <p className="text-slate-400 text-sm">Click to browse and review music</p>
+              <p className="text-slate-400 text-sm">
+                Click to browse and review music
+              </p>
             </Link>
           </div>
         </div>

@@ -46,7 +46,7 @@ export default function LoginPage() {
       console.log("[Login] Attempting login with:", form.email);
       const loginUrl = buildApiUrl(API_ENDPOINTS.LOGIN);
       console.log("[Login] Using endpoint:", loginUrl);
-      
+
       const res = await fetch(loginUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,9 +54,13 @@ export default function LoginPage() {
       });
 
       console.log("[Login] Response status:", res.status);
-      
+
       const data = await res.json();
-      console.log("[Login] Response data:", { token: data.token ? "exists" : "missing", uid: data.uid, error: data.error });
+      console.log("[Login] Response data:", {
+        token: data.token ? "exists" : "missing",
+        uid: data.uid,
+        error: data.error,
+      });
 
       if (!res.ok) {
         console.error("[Login] Login failed:", data.error);
@@ -74,7 +78,7 @@ export default function LoginPage() {
       }
 
       console.log("[Login] Login successful, saving auth data");
-      
+
       // Also use the centralized utility
       login({
         token: data.token,
@@ -86,13 +90,18 @@ export default function LoginPage() {
       router.push("/dashboard");
     } catch (error) {
       console.error("[Login] Catch error:", error);
-      setErrors({ general: error instanceof Error ? error.message : "Network error, please try again" });
+      setErrors({
+        general:
+          error instanceof Error
+            ? error.message
+            : "Network error, please try again",
+      });
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 pt-20 pb-12">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 pt-0 pb-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">

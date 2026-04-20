@@ -99,7 +99,7 @@ function MyReviewsContent() {
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-12">
+    <div className="min-h-screen pt-0 pb-12">
       <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="py-8">
           <div className="flex items-center justify-between mb-6">

@@ -8,7 +8,7 @@ import { getAuthToken } from "@/lib/authStorage";
 import { API_BASE_URL } from "@/lib/api";
 
 // Force dynamic rendering for client-side data
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 interface BookDetails {
   id: string;
@@ -53,13 +53,19 @@ export default function BookDetails() {
     const storedBook = localStorage.getItem(`book-${bookId}`);
     if (storedBook) {
       const bookData = JSON.parse(storedBook);
-      console.log("[BookDetail] Loaded book from localStorage:", bookData.title);
+      console.log(
+        "[BookDetail] Loaded book from localStorage:",
+        bookData.title,
+      );
       setBook(bookData);
       // Fetch reviews after we have the book data
       fetchReviewsForBook(bookData.title);
       setLoading(false);
     } else {
-      console.warn("[BookDetail] No book data found in localStorage for ID:", bookId);
+      console.warn(
+        "[BookDetail] No book data found in localStorage for ID:",
+        bookId,
+      );
       setLoading(false);
     }
   }, [bookId]);
@@ -68,15 +74,23 @@ export default function BookDetails() {
     console.log("[BookDetail] Fetching reviews for:", bookTitle);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/reviews/media/${encodeURIComponent(bookTitle)}`
+        `${API_BASE_URL}/reviews/media/${encodeURIComponent(bookTitle)}`,
       );
       if (response.ok) {
         const data = await response.json();
         const reviewList = Array.isArray(data) ? data : data.reviews || [];
-        console.log("[BookDetail] Fetched", reviewList.length, 'reviews for', bookTitle);
+        console.log(
+          "[BookDetail] Fetched",
+          reviewList.length,
+          "reviews for",
+          bookTitle,
+        );
         setReviews(reviewList);
       } else {
-        console.error("[BookDetail] Failed to fetch reviews, status:", response.status);
+        console.error(
+          "[BookDetail] Failed to fetch reviews, status:",
+          response.status,
+        );
         setReviews([]);
       }
     } catch (error) {
@@ -87,7 +101,7 @@ export default function BookDetails() {
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       alert("Please log in to submit a review");
       router.push("/login");
@@ -141,7 +155,10 @@ export default function BookDetails() {
         setReviewData({ rating: 3, reviewText: "" });
         setShowReviewForm(false);
         // Fetch reviews again to show the new review
-        console.log("[BookDetail] Fetching reviews after submission for:", book.title);
+        console.log(
+          "[BookDetail] Fetching reviews after submission for:",
+          book.title,
+        );
         fetchReviewsForBook(book.title);
       } else {
         console.error("Review submission error:", data);
@@ -165,10 +182,12 @@ export default function BookDetails() {
 
   if (!book) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 pt-20">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 pt-0">
         <div className="text-center">
           <p className="text-white text-xl mb-4">Book not found</p>
-          <p className="text-slate-400 mb-6">The book data could not be loaded. Please go back and try again.</p>
+          <p className="text-slate-400 mb-6">
+            The book data could not be loaded. Please go back and try again.
+          </p>
           <Link href="/books" className="text-amber-400 hover:text-amber-300">
             ← Back to Books
           </Link>
@@ -181,7 +200,10 @@ export default function BookDetails() {
     <div className="min-h-screen bg-slate-900 py-12">
       <div className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
         {/* Back Link */}
-        <Link href="/books" className="text-amber-400 hover:text-amber-300 mb-8 inline-block">
+        <Link
+          href="/books"
+          className="text-amber-400 hover:text-amber-300 mb-8 inline-block"
+        >
           ← Back to Books
         </Link>
 
@@ -204,7 +226,7 @@ export default function BookDetails() {
           <div className="flex-1">
             <h1 className="text-4xl font-bold text-white mb-2">{book.title}</h1>
             <p className="text-xl text-amber-400 mb-4">by {book.author}</p>
-            
+
             {book.year && (
               <p className="text-slate-400 mb-4">Published: {book.year}</p>
             )}
@@ -244,24 +266,31 @@ export default function BookDetails() {
             <h3 className="text-xl font-bold text-white mb-4">Your Review</h3>
             <form onSubmit={handleSubmitReview} className="space-y-4">
               <div>
-                <label className="block text-slate-300 mb-2">Rating (1-5 stars)</label>
+                <label className="block text-slate-300 mb-2">
+                  Rating (1-5 stars)
+                </label>
                 <select
                   value={reviewData.rating}
                   onChange={(e) =>
-                    setReviewData({ ...reviewData, rating: parseInt(e.target.value) })
+                    setReviewData({
+                      ...reviewData,
+                      rating: parseInt(e.target.value),
+                    })
                   }
                   className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white focus:outline-none focus:border-amber-400"
                 >
                   {[1, 2, 3, 4, 5].map((num) => (
                     <option key={num} value={num}>
-                      {num} / 5 {'⭐'.repeat(num)}
+                      {num} / 5 {"⭐".repeat(num)}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-2">Review (minimum 10 characters)</label>
+                <label className="block text-slate-300 mb-2">
+                  Review (minimum 10 characters)
+                </label>
                 <textarea
                   value={reviewData.reviewText}
                   onChange={(e) =>
@@ -289,17 +318,25 @@ export default function BookDetails() {
         <div>
           <h2 className="text-2xl font-bold text-white mb-6">Reviews</h2>
           {reviews.length === 0 ? (
-            <p className="text-slate-400">No reviews yet. Be the first to review!</p>
+            <p className="text-slate-400">
+              No reviews yet. Be the first to review!
+            </p>
           ) : (
             <div className="space-y-4">
               {reviews.map((review) => (
                 <div key={review.id} className="bg-slate-800 rounded-lg p-6">
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-amber-400 font-bold text-lg">{review.rating}/5 ⭐</span>
+                    <span className="text-amber-400 font-bold text-lg">
+                      {review.rating}/5 ⭐
+                    </span>
                   </div>
-                  <p className="text-slate-400 text-sm mb-3">By {review.userName}</p>
+                  <p className="text-slate-400 text-sm mb-3">
+                    By {review.userName}
+                  </p>
                   <p className="text-slate-300">{review.reviewText}</p>
-                  <p className="text-slate-500 text-xs mt-3">{new Date(review.createdAt).toLocaleDateString()}</p>
+                  <p className="text-slate-500 text-xs mt-3">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </p>
                 </div>
               ))}
             </div>

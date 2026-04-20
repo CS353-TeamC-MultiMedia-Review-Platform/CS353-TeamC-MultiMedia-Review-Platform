@@ -131,7 +131,7 @@ export default function CreateReviewPage() {
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-12 bg-slate-900">
+    <div className="min-h-screen pt-0 pb-12 bg-slate-900">
       <div className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         {/* Header */}
         <div className="py-8 mb-8">
