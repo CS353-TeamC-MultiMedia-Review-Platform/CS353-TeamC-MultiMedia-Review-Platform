@@ -307,6 +307,62 @@ async function incrementHelpful(reviewId) {
   return { id: reviewId, ...updatedDoc.data() };
 }
 
+async function incrementUnhelpful(reviewId) {
+  const doc = await db.collection("reviews").doc(reviewId).get();
+
+  if (!doc.exists) {
+    throw new Error("Review not found");
+  }
+
+  await db
+    .collection("reviews")
+    .doc(reviewId)
+    .update({
+      unhelpful: admin.firestore.FieldValue.increment(1),
+    });
+
+  const updatedDoc = await db.collection("reviews").doc(reviewId).get();
+  return { id: reviewId, ...updatedDoc.data() };
+}
+
+async function decrementHelpful(reviewId) {
+  const doc = await db.collection("reviews").doc(reviewId).get();
+
+  if (!doc.exists) {
+    throw new Error("Review not found");
+  }
+
+  const currentHelpful = doc.data().helpful || 0;
+  await db
+    .collection("reviews")
+    .doc(reviewId)
+    .update({
+      helpful: Math.max(0, currentHelpful - 1),
+    });
+
+  const updatedDoc = await db.collection("reviews").doc(reviewId).get();
+  return { id: reviewId, ...updatedDoc.data() };
+}
+
+async function decrementUnhelpful(reviewId) {
+  const doc = await db.collection("reviews").doc(reviewId).get();
+
+  if (!doc.exists) {
+    throw new Error("Review not found");
+  }
+
+  const currentUnhelpful = doc.data().unhelpful || 0;
+  await db
+    .collection("reviews")
+    .doc(reviewId)
+    .update({
+      unhelpful: Math.max(0, currentUnhelpful - 1),
+    });
+
+  const updatedDoc = await db.collection("reviews").doc(reviewId).get();
+  return { id: reviewId, ...updatedDoc.data() };
+}
+
 // ROUTES
 
 // Root route
@@ -634,6 +690,39 @@ app.post("/reviews/:id/helpful", async (req, res) => {
     res.json({ success: true, review });
   } catch (error) {
     console.error("Error incrementing helpful count:", error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Mark a review as unhelpful
+app.post("/reviews/:id/unhelpful", async (req, res) => {
+  try {
+    const review = await incrementUnhelpful(req.params.id);
+    res.json({ success: true, review });
+  } catch (error) {
+    console.error("Error incrementing unhelpful count:", error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Remove helpful vote from a review
+app.post("/reviews/:id/helpful/undo", async (req, res) => {
+  try {
+    const review = await decrementHelpful(req.params.id);
+    res.json({ success: true, review });
+  } catch (error) {
+    console.error("Error decrementing helpful count:", error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Remove unhelpful vote from a review
+app.post("/reviews/:id/unhelpful/undo", async (req, res) => {
+  try {
+    const review = await decrementUnhelpful(req.params.id);
+    res.json({ success: true, review });
+  } catch (error) {
+    console.error("Error decrementing unhelpful count:", error);
     res.status(400).json({ error: error.message });
   }
 });
